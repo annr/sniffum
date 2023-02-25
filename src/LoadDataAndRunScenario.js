@@ -1,10 +1,11 @@
 import React from "react";
 
-import Action from "./Action";
+import TradeDay from "./TradeDay";
+import {convertData, getTradeDays, runScenario} from "./Helpers";
 
 //https://reactjs.org/docs/faq-ajax.html
 
-class LoadDataAndProcess extends React.Component {
+class LoadDataAndRunScenario extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -14,7 +15,10 @@ class LoadDataAndProcess extends React.Component {
           muffinPrice: props.muffinPrice,
           startDateString: props.startDateString,
           endDateString: props.endDateString,
-          spendinglimit: props.spendinglimit
+          spendinglimit: props.spendinglimit,
+          tradeFrequency: props.tradeFrequency,
+          saleThreshold: props.saleThreshold,
+          sellAllAtSaleThreshold: props.sellAllAtSaleThreshold,
         };
       }
     
@@ -42,23 +46,34 @@ class LoadDataAndProcess extends React.Component {
     
       render() {
         const { error, isLoaded, items } = this.state;
+
+        const {startDate, endDate, tradeFrequency, spendinglimit, muffinPrice, saleThreshold, sellAllAtSaleThreshold} = this.props;
+
         if (error) {
           return <div>Error: {error.message}</div>;
         } else if (!isLoaded) {
           return <div>Loading...</div>;
         } else {
 
+          //console.log(`start before end: ${this.props.startDate < this.props.endDate}`);
 
+          let data = convertData(items);
 
+          let tradeDays = getTradeDays(data, startDate, endDate, tradeFrequency);
+
+          const maxMuffins = Math.floor(spendinglimit/muffinPrice);
+
+          let res = {
+            totalScenarioProfit: 0,
+            muffins: [],
+          };
+          
+          res.muffins = runScenario(data, tradeDays, maxMuffins, muffinPrice, saleThreshold, sellAllAtSaleThreshold); // test this.
 
           return (
             <div>
-              {`m: ${this.props.muffinPrice}`}
-              {items.map(item => (
-                <Action />
-                // <p key={item.Date}>
-                //   {`${item.Date}:  ${item.NAV}`}
-                // </p>
+              {tradeDays.map(item => (
+                <TradeDay id={item} />
               ))}
             </div>
           );
@@ -67,4 +82,4 @@ class LoadDataAndProcess extends React.Component {
 
 }
 
-export default LoadDataAndProcess;
+export default LoadDataAndRunScenario;

@@ -1,52 +1,58 @@
 
 import './App.css';
 
-import Action from './Action';
-
-import LoadDataAndProcess from './LoadDataAndProcess';
+import LoadDataAndRunScenario from './LoadDataAndRunScenario';
 
 //import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 //import recentMarketDays from './data/voo.json';
 
-let muffinPrice = 2500.00;
-let buyRateDays = 7;
+let muffinPrice = 3100.00;
+let tradeFrequency = 7;
 let spendinglimit = 50000.00;
-const startDateString = Date.parse('2018-02-06');
-const endDateString = Date.parse('2019-02-24');
-const duration = (endDateString - startDateString)/(1000*60*60*24);
+const startDate = Date.parse('2/13/2020');
+const endDate = Date.parse('2/13/2021');
+const duration = (endDate - startDate)/(1000*60*60*24);
+// the percent above purchase price before muffin is removed from the oven
+const saleThreshold = 0.020; 
+const sellAllAtSaleThreshold = true;
 
 function App() {
-  
+
   return (
     <div className="App">
       <header className="App-header">
-          Muffins Scenarios
-      </header>
-      <h1>Log</h1>
+      <h1 className="app-title">🧁 Muffins Scenario Runner</h1>
       <h2>Config</h2>
-      <dl>
-        <dt>XXXX:</dt>
-        <dd>OOOO</dd>
-        <dt>Muffin price:</dt>
-        <dd>{`${muffinPrice}`}</dd>
-        <dt>Action rate:</dt>
-        <dd>{`${buyRateDays} days`}</dd>
-        <dt>Start date</dt>
-        <dd>{`${new Date(startDateString).toDateString()}`}</dd>
-        <dt>End date</dt>
-        <dd>{`${new Date(endDateString).toDateString()}`}</dd>
-        <dt>Limit:</dt><dd>{`${spendinglimit}`}</dd>
-        <dt>Length of run:</dt>
-        <dd>{`${duration.toString()} days`}</dd>
-        <dt>Single purchase profit or loss comparison:</dt>
-        <dd>TBD</dd>
-      </dl>
+      <ul>
+        <li>
+          <em>Start date</em>: {`${new Date(startDate).toDateString()}`}
+        </li>
+        <li>
+         <em>End date:</em> {`${new Date(endDate).toDateString()}`}
+        </li>
+        <li>
+          <em>Muffin price:</em> {`${muffinPrice}`}
+        </li>
+        <li>
+          <em>Trade frequency:</em> {`${tradeFrequency} days}`}
+        </li>
 
-      <LoadDataAndProcess             
+        <li>
+          <em>Length of run:</em> {`${duration.toString()} days`}
+        </li>
+      </ul>
+      </header>
+
+      <h2>Outcome</h2>
+
+      <LoadDataAndRunScenario          
         muffinPrice={muffinPrice}
-        startDateString={startDateString}
-        endDateString={endDateString}
+        startDate={startDate}
+        endDate={endDate}
         spendinglimit={spendinglimit}
+        tradeFrequency={tradeFrequency}
+        saleThreshold={saleThreshold}
+        sellAllAtSaleThreshold={sellAllAtSaleThreshold}
       />
 
     </div>
