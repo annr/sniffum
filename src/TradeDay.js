@@ -1,16 +1,23 @@
 import React from 'react';
 import './TradeDay.css';
+import {money} from "./Helpers";
 
-import Muffin from './Muffin';
-
+import MuffinPurchase from './MuffinPurchase';
+import MuffinSale from './MuffinSale';
 
 class TradeDay extends React.Component {
   render() {
+    const sold = this.props.soldMuffins.map((muffin) =>
+       <MuffinSale {...muffin} />
+    );
     return (
       <div className="trade-day">
-        {`${new Date(this.props.id).toDateString()}`}
-        <br></br>
-        <Muffin />
+        <h3 className="trade-date"> {`Day ${this.props.eventId} - ${new Date(this.props.date).toDateString()} -  ${money.format(this.props.price)}`}</h3>
+        <ul>
+          <MuffinPurchase {...this.props.purchasedMuffin} />
+          {sold}
+          <li>Invested on this day: {money.format(this.props.valueUnsoldMuffins)}</li>
+        </ul>
       </div>
     );
   }

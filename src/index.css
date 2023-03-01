@@ -14,3 +14,41 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.money {
+  color: green;
+  font-weight: bold;
+  border: 1px solid white;
+  padding: 3px 6px;
+  background-color: beige;
+  border-radius: 3px;
+}
+
+ul li {
+  padding: 5px;
+}
+
+.positive, .new {
+  color: lightgreen;
+  font-weight: bold;
+}
+
+.negative {
+  color: red;
+  font-weight: bold;
+}
+
+.scenario-return {
+  color: aqua;
+  font-weight: bold;
+}
+
+.custard {
+  color:khaki;
+  font-weight: bold;
+}
+
+.dim {
+  color:gray;
+  font-size: smaller;
+}
