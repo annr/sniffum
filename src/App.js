@@ -1,7 +1,8 @@
 import { Route, Routes, Link } from "react-router-dom";
 import { Home } from "./Home";
 import { Main } from "./Main";
-//import { BasicScenario } from "./BasicScenario"
+import { AdvancedScenario } from "./AdvancedScenario"
+import { Table } from "./Table";
 import './App.css';
 
 export default function App() {
@@ -12,6 +13,8 @@ export default function App() {
       <nav>
         <ul>
           <li><Link to="/basic">Basic Muffin Scenario Runner</Link></li>
+          <li><Link to="/advanced">Advanced Muffin Scenario Runner</Link></li>
+          <li><Link to="/table">Comparison Table of Approaches</Link></li>
         </ul>
         <hr></hr>
       </nav>
@@ -19,8 +22,8 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/basic" element={<Main />} />
-      {/* <Route path="/basic" element={<BasicScenario />} /> */}
-      {/* <Route path="/advanced" element={<AdvancedScenario />} /> */}
+      <Route path="/advanced" element={<AdvancedScenario />} />
+      <Route path="/table" element={<Table />} />
     </Routes>
     </>
   )
