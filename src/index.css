@@ -52,3 +52,12 @@ ul li {
   color:gray;
   font-size: smaller;
 }
+
+a {
+  color: #fff;
+}
+
+h1 a {
+  text-decoration: none;
+  cursor: pointer;
+}
