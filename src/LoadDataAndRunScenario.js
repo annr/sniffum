@@ -1,7 +1,7 @@
 import React from "react";
 
 import TradeDay from "./TradeDay";
-import {convertData, getTradeDays, runScenario, money} from "./Helpers";
+import {convertData, getTradeDays, runScenario, money, formatPercent} from "./Helpers";
 
 //https://reactjs.org/docs/faq-ajax.html
 
@@ -61,13 +61,24 @@ class LoadDataAndRunScenario extends React.Component {
           // outcome
           const o = runScenario(data, tradeDays, maxMuffins, muffinPrice, saleThreshold, sellAllAtSaleThreshold); // test this.
           const duration = (endDate - startDate)/(1000*60*60*24);
+          const avgInvestmentPct = Math.round((o.averageInvestment/spendinglimit)*100) + "%";
+          const returnsClassName = o.scenarioReturn > 0 ? "positive" : "negative";
+
           return (
             <div>
               <h2>Outcome</h2>
               <ul>
                 <li>
                   <em>Profit: </em>
-                  <span className="money">{`${o.totalProfits}`}</span>
+                  <span className="money">{`${money.format(o.totalProfits)}`}</span>
+                </li>
+                <li>
+                  <em>Sales: </em>
+                  {`${money.format(o.totalSales)}`}
+                </li>
+                <li>
+                  <em>Unsold muffins gains or losses: </em>
+                  {`${money.format(o.unsoldGainsOrLosses)}`}
                 </li>
                 <li>
                   <em>Scenario start price: </em>
@@ -88,11 +99,11 @@ class LoadDataAndRunScenario extends React.Component {
                 </li>
                 <li>
                   <em>Average investment over period: </em>
-                  {`${o.averageInvestment}`}
+                  {`${money.format(o.averageInvestment)} (${avgInvestmentPct})`}
                 </li>
                 <li>
                   <em>Scenario (short-term) gains: </em>
-                  <span className="positive">{`${o.scenarioReturn}`} </span>
+                  <span className={`${returnsClassName}`}>{`${formatPercent(o.scenarioReturn)}`} </span>
                   <span className="dim">(profit/average-investment) </span>
                 </li>
                 <li>
@@ -100,8 +111,12 @@ class LoadDataAndRunScenario extends React.Component {
                   {`${o.maximumInvestedAtAnyTime}`}
                 </li>
                 <li>
-                  <em>Remaining unsold muffins: </em>
-                  {`${o.remainingUnsoldMuffins}`}
+                  <em>Remaining unsold muffins (including cupcakes): </em>
+                  {`${o.remainingUnsoldMuffins.length}`}
+                </li>
+                <li>
+                  <em>Number of cupcakes: </em>
+                  {`${o.cupcakes.length}`}
                 </li>
                 <li>
                   <em>Trade shutout days: </em>

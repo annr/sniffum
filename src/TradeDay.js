@@ -12,11 +12,11 @@ class TradeDay extends React.Component {
     );
     return (
       <div className="trade-day">
-        <h3 className="trade-date"> {`Day ${this.props.eventId} - ${new Date(this.props.date).toDateString()} -  ${money.format(this.props.price)}`}</h3>
+        <h3 className="trade-date"> {`Day ${this.props.eventId} - ${new Date(this.props.date).toDateString()} - ${money.format(this.props.price)}`} ...<MuffinPurchase {...this.props.purchasedMuffin} /></h3>
         <ul>
-          <MuffinPurchase {...this.props.purchasedMuffin} />
+          {/* <MuffinPurchase {...this.props.purchasedMuffin} /> */}
           {sold}
-          <li>Invested on this day: {money.format(this.props.valueUnsoldMuffins)}</li>
+          <li>Invested on this day: {money.format(this.props.costUnsoldMuffins)}</li>
         </ul>
       </div>
     );

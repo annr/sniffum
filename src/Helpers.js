@@ -12,10 +12,8 @@ export const getTradeDays = (data, startDate, endDate, tradeFrequency) => {
   let days = [];
   let currentDay = startDate;
   let price = null;
-
   do {
     price = getPrice(data, currentDay);
-
     let failSafe = 0;
     while(!price && failSafe < 100) {
       failSafe++;
@@ -38,16 +36,30 @@ export const getTradeDays = (data, startDate, endDate, tradeFrequency) => {
   return days;
 };
 
-const getNewMuffin = (data, day, index) => {
+const getNewMuffin = (data, day, index, muffinPrice) => {
   // Event day is unique identifier. This is fine for now.
   return {
     'id': index,
+    'cost': muffinPrice,
     'purchaseDate': new Date(day).toDateString(),
     'purchasePrice': getPrice(data,day),
     'saleDate': null,
     'salePrice': null,
     'profit': null,
     'age': null,
+    'currentGain': null,
+  };
+};
+
+const getNewEvent = (data, day, index, newMuffin, soldMuffins, costUnsoldMuffins) => {
+  // Event day is unique identifier. This is fine for now.
+  return {
+    'eventId': ++index,
+    'date': day,
+    'price': getPrice(data,day),
+    'purchasedMuffin': newMuffin,
+    'soldMuffins': soldMuffins,
+    'costUnsoldMuffins': costUnsoldMuffins,
   };
 };
 
@@ -66,7 +78,6 @@ export const runScenario = (data, days, maxMuffins, muffinPrice, saleThreshold) 
   let events = [];
   let totalProfits = 0;
   let shutOutDays = [];
-  let unsoldMuffins;
 
   const o = {
     firstDayPrice: getPrice(data, days[0]),
@@ -78,7 +89,7 @@ export const runScenario = (data, days, maxMuffins, muffinPrice, saleThreshold) 
 
   days.forEach((day,index) => {
     // As we buy muffins and go through time, we need to check
-    //   if we can buy a muffine and sell a single muffin
+    //   if we can buy a muffin and sell a single muffin
 
     // Selecting which muffin to sell is tricky. Would it be the 
     //   one that has gained the most or just the oldest one? I think
@@ -88,49 +99,33 @@ export const runScenario = (data, days, maxMuffins, muffinPrice, saleThreshold) 
     // Sell a muffin if possible first, because if we sell a muffin we
     //   can buy a muffin on the same day (muffins.length - 1)
 
-    const dayPrice = getPrice(data, day);
-
-    let valueUnsoldMuffins = 0; // value of muffins on this day
-
     // Changed to sell all at threshold for a moment
     //let highestChange = null;
 
     let saleIndexes = []
-    unsoldMuffins = 0;
 
     // loop through muffins to see if any sale thresholds are met,
     // and count total unsold muffin value
     for (let i = 0; i < muffins.length; i++) {
       if (muffins[i].profit == null) {
-        const priceChangePercent = getPriceChangePercent(muffins[i].purchasePrice, dayPrice);
+        const priceChangePercent = getPriceChangePercent(muffins[i].purchasePrice, getPrice(data, day));
         if (priceChangePercent > saleThreshold) {
             saleIndexes.push(i);
             console.log(`Muffin ${i+1} will sell ${priceChangePercent} higher DAY ${index}`)
           // }
-        } else {
-          // muffin will not sell. Add value of it to investedAmountByDay
-          valueUnsoldMuffins += muffinPrice;
-          // also count unsold muffins for limit.
-          unsoldMuffins++;
         }
-  
       }
     }
 
-    // If we can sell a muffin, select a muffin and sell it. Could be the oldest,
-    //   but at the moment it's the muffin that has made the most profit that 
-    //   makes the most sense to sell. This might be obvious, but I don't want
-    //   choice to ever be a part of this strategy.
-
+    // Sell all muffins that have gained saleThreshold
     if (muffins.length && saleIndexes.length) {
       // Update one muffin with sale date and price
 
       for (let j = 0; j < saleIndexes.length; j++) {
         muffins[saleIndexes[j]].saleDate = new Date(day).toDateString();
-        muffins[saleIndexes[j]].salePrice = dayPrice;
+        muffins[saleIndexes[j]].salePrice = getPrice(data, day);
         const profit = getProfit(muffinPrice, getPriceChangePercent(muffins[saleIndexes[j]].purchasePrice, getPrice(data, day)));
         muffins[saleIndexes[j]].profit = profit;
-        muffins[saleIndexes[j]].age = null; // implement
         totalProfits += profit;
       }
 
@@ -138,8 +133,8 @@ export const runScenario = (data, days, maxMuffins, muffinPrice, saleThreshold) 
     }
 
     // if we sold some today, or we have less than maxMuffins unsold, buy.
-    if(saleIndexes.length || unsoldMuffins < maxMuffins) {
-      const newMuffin = getNewMuffin(data, day, index+1);
+    if(saleIndexes.length || getUnsoldMuffins(muffins).length < maxMuffins) {
+      const newMuffin = getNewMuffin(data, day, index+1, muffinPrice);
       muffins.push(newMuffin);
 
       const soldMuffins = [];
@@ -147,49 +142,111 @@ export const runScenario = (data, days, maxMuffins, muffinPrice, saleThreshold) 
         soldMuffins.push(muffins[sale]);
       });
 
-      console.log(`Muffins for sale on ${new Date(day).toDateString()}: ${soldMuffins.length}`)
-      // since a new one is added, include the value in investedAmountByDay
-      valueUnsoldMuffins += muffinPrice;
       // now there is one more that is unsold
-      unsoldMuffins++;
 
-      events.push({
-        'eventId': ++index,
-        'date': day,
-        'price': getPrice(data,day),
-        'purchasedMuffin': newMuffin,
-        'soldMuffins': soldMuffins,
-        'valueUnsoldMuffins': valueUnsoldMuffins,
-      });
+      events.push(getNewEvent(
+        data,
+        day,
+        ++index,
+        newMuffin,
+        soldMuffins,
+        getCostUnsoldMuffins(muffins, muffinPrice)
+      ));
 
     } else {
       shutOutDays.push(day);
-      events.push({
-        'eventId': ++index,
-        'date': day,
-        'price': getPrice(data,day),
-        'purchasedMuffin': null,
-        'soldMuffins': [],
-        'valueUnsoldMuffins': valueUnsoldMuffins,
-      });
+      events.push(getNewEvent(
+        data,
+        day,
+        ++index,
+        null,
+        [],
+        getCostUnsoldMuffins(muffins, muffinPrice)
+      ));
     }
 
-    investedAmountByDay.push(valueUnsoldMuffins);
+    // update ages of UNSOLD muffins
+    // currently this would not need to be in the loop
+    muffins = updateAgeOfMuffins(day, muffins);
+    muffins = updateGainOfMuffins(data, day, muffins);
+
+    investedAmountByDay.push(getCostUnsoldMuffins(muffins, muffinPrice));
   });
 
   const averageInvestment = getAverageInvestment(investedAmountByDay); //as number
 
-  o.totalProfits = money.format(totalProfits);
+  o.unsoldGainsOrLosses = getUnsoldMuffinsProfit(o.lastDayPrice, muffins);
+  o.totalSales = totalProfits;
+  o.totalProfits = totalProfits + o.unsoldGainsOrLosses;
   o.marketGrowthOfPeriod = formatPercent(getPriceChangePercent(o.firstDayPrice, o.lastDayPrice)*100);
-  o.averageInvestment = money.format(getAverageInvestment(investedAmountByDay));
-  o.remainingUnsoldMuffins = unsoldMuffins; // maybe indicate if these are in the red and by how much.
-  o.scenarioReturn = formatPercent((totalProfits/averageInvestment)*100);
+  o.averageInvestment = getAverageInvestment(investedAmountByDay);
+  o.remainingUnsoldMuffins = getUnsoldMuffins(muffins); // maybe indicate if these are in the red and by how much.
+
+  // Cupcakes are muffins nearing their birthday and won't be sold until after their birthday.
+  o.cupcakes = getCupcakes(o.remainingUnsoldMuffins);
+  o.scenarioReturn = getReturn(o.totalProfits, averageInvestment);
   o.maximumInvestedAtAnyTime = money.format(getMaximumInvested(investedAmountByDay));
   o.shutOutDays = shutOutDays;
   o.muffins = muffins;
   o.events = events;
   return o;
 }
+
+const getUnsoldMuffins = (muffins) => {
+  const unsold = (element) => !element.saleDate;
+  return muffins.filter(unsold);
+};
+
+const getCupcakes = (muffins) => {
+  const cupcakes = (m) => !m.saleDate && m.age > (9 * 30); // hard-coded age for cupcakes
+  return muffins.filter(cupcakes);
+};
+
+const updateAgeOfMuffins = (day, muffins) => {
+  for (var i in muffins) {
+    if (!muffins[i].saleDate) {
+      const age = getAgeInDays(day, muffins[i]);
+      muffins[i].age  = Math.round(age);
+    }
+  }
+  return muffins;
+};
+
+const updateGainOfMuffins = (data, day, muffins) => {
+  for (var i in muffins) {
+    if (!muffins[i].saleDate) {
+      const gain = getPercentValueToday(getPrice(data, day), muffins[i]);
+      muffins[i].currentGain  = gain;
+    }
+  }
+  return muffins;
+};
+
+const getUnsoldMuffinsProfit = (currentPrice, muffins) => {
+  let profit = 0;
+  for (var i in muffins) {
+    if (!muffins[i].saleDate) { // count only unsold
+      profit += getDollarValueToday(currentPrice, muffins[i]);
+    }
+  }
+  return profit;
+};
+
+const getCostUnsoldMuffins = (muffins, muffinPrice) => {
+  return getUnsoldMuffins(muffins).length * muffinPrice;
+};
+
+const getAgeInDays = (day, muffin) => {
+  return (new Date(day) - new Date(muffin.purchaseDate))/(1000*60*60*24);
+};
+
+const getPercentValueToday = (currentPrice, muffin) => {
+  return getPriceChangePercent(muffin.purchasePrice, currentPrice);
+};
+
+const getDollarValueToday = (currentPrice, muffin) => {
+  return getPercentValueToday(currentPrice, muffin) * muffin.cost;
+};
 
 const getPrice = (data, day) => {
   return data.get(new Date(day).toDateString());
@@ -201,6 +258,10 @@ const getProfit = (muffinPrice, percentChange) => {
 
 const getPriceChangePercent = (x, y) => {
   return (y-x)/x;
+}
+
+const getReturn = (totalProfits, averageInvestment) => {
+  return (totalProfits/averageInvestment)*100;
 }
 
 const getMaximumInvested = (investedAmountByDay) => {
@@ -236,7 +297,7 @@ export const money = new Intl.NumberFormat('en-US', {
   currency: 'USD',
 });
 
-const formatPercent = (num) => {
+export const formatPercent = (num) => {
   return Number(num/100).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:2});
 };
 
