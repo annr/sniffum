@@ -70,9 +70,8 @@ const recordEvent = () => { // inddex will be day number
   };
 };
 
-// Lots of logic here.
 // "days" is a little confusing. It's actually a trade event, not every day.
-export const runScenario = (data, days, maxMuffins, muffinPrice, saleThreshold) => {
+export const runBasicScenario = (data, days, maxMuffins, muffinPrice, saleThreshold) => {
 
   let muffins = [];
   let events = [];

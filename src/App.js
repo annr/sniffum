@@ -1,9 +1,10 @@
 import { Route, Routes, Link } from "react-router-dom";
 import { Home } from "./Home";
 import { Main } from "./Main";
-import { AdvancedScenario } from "./AdvancedScenario"
+import { Advanced } from "./Advanced"
 import { Table } from "./Table";
 import './App.css';
+
 
 export default function App() {
   return (
@@ -22,7 +23,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/basic" element={<Main />} />
-      <Route path="/advanced" element={<AdvancedScenario />} />
+      <Route path="/advanced" element={<Advanced />} />
       <Route path="/table" element={<Table />} />
     </Routes>
     </>

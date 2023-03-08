@@ -1,7 +1,7 @@
 import React from "react";
 
 import TradeDay from "./TradeDay";
-import {convertData, getTradeDays, runScenario, money, formatPercent} from "./Helpers";
+import {convertData, getTradeDays, runBasicScenario, money, formatPercent} from "./Helpers";
 
 //https://reactjs.org/docs/faq-ajax.html
 
@@ -18,7 +18,6 @@ class LoadDataAndRunScenario extends React.Component {
           spendinglimit: props.spendinglimit,
           tradeFrequency: props.tradeFrequency,
           saleThreshold: props.saleThreshold,
-          sellAllAtSaleThreshold: props.sellAllAtSaleThreshold,
         };
       }
     
@@ -46,7 +45,7 @@ class LoadDataAndRunScenario extends React.Component {
     
       render() {
         const { error, isLoaded, items } = this.state;
-        const {startDate, endDate, tradeFrequency, spendinglimit, muffinPrice, saleThreshold, sellAllAtSaleThreshold} = this.props;
+        const {startDate, endDate, tradeFrequency, spendinglimit, muffinPrice, saleThreshold} = this.props;
 
         if (error) {
           return <div>Error: {error.message}</div>;
@@ -59,7 +58,7 @@ class LoadDataAndRunScenario extends React.Component {
           const maxMuffins = Math.floor(spendinglimit/muffinPrice);
 
           // outcome
-          const o = runScenario(data, tradeDays, maxMuffins, muffinPrice, saleThreshold, sellAllAtSaleThreshold); // test this.
+          const o = runBasicScenario(data, tradeDays, maxMuffins, muffinPrice, saleThreshold); // test this.
           const duration = (endDate - startDate)/(1000*60*60*24);
           const avgInvestmentPct = Math.round((o.averageInvestment/spendinglimit)*100) + "%";
           const returnsClassName = o.scenarioReturn > 0 ? "positive" : "negative";
