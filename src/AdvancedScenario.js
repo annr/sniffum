@@ -1,7 +1,7 @@
 import React from "react";
 
 import TradeDay from "./TradeDay";
-import {convertData, getTradeDays, runBasicScenario, money, formatPercent} from "./Helpers";
+import {getTradeDays, runBasicScenario, money, formatPercent, convertBasicData} from "./Helpers";
 
 //https://reactjs.org/docs/faq-ajax.html
 
@@ -23,7 +23,7 @@ class AdvancedScenario extends React.Component {
       }
     
       componentDidMount() {
-        fetch("http://localhost:3000/voo-2018-present.json")
+        fetch("http://localhost:3000/sp-highs.json")
           .then(res => res.json())
           .then(
             (result) => {
@@ -54,7 +54,7 @@ class AdvancedScenario extends React.Component {
           return <div>Loading...</div>;
         } else {
 
-          let data = convertData(items);
+          let data = convertBasicData(items);
           let tradeDays = getTradeDays(data, startDate, endDate, tradeFrequency);
           const maxMuffins = Math.floor(spendinglimit/muffinPrice);
 

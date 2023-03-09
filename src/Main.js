@@ -17,8 +17,12 @@ let muffinPrice = 5000.00;
 
 let tradeFrequency = 7;
 let spendinglimit = 80000.00;
-const startDate = Date.parse('2/18/2022');
-const endDate = Date.parse('2/26/2023');
+const startDate = Date.parse('2/18/2018');
+const endDate = Date.parse('2/10/2019');
+
+if (endDate < startDate) {
+  console.error('endDate is before startDate');
+}
 // the percent above purchase price before muffin is removed from the oven
 
 // Sale threshold can also wildly influence profit, of course.
@@ -61,12 +65,6 @@ export function Main() {
 
       <h2>Config</h2>
       <ul>
-        <li>
-          <em>Start date</em>: {`${new Date(startDate).toDateString()}`}
-        </li>
-        <li>
-         <em>End date:</em> {`${new Date(endDate).toDateString()}`}
-        </li>
         <li>
           <em>Muffin price:</em> {`${money.format(muffinPrice)}`}
         </li>

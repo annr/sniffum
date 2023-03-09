@@ -15,8 +15,7 @@ code {
     monospace;
 }
 
-.money {
-  color: green;
+.profit {
   font-weight: bold;
   border: 1px solid white;
   padding: 3px 6px;

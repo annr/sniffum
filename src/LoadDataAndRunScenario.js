@@ -12,17 +12,11 @@ class LoadDataAndRunScenario extends React.Component {
           error: null,
           isLoaded: false,
           items: [],
-          muffinPrice: props.muffinPrice,
-          startDateString: props.startDateString,
-          endDateString: props.endDateString,
-          spendinglimit: props.spendinglimit,
-          tradeFrequency: props.tradeFrequency,
-          saleThreshold: props.saleThreshold,
         };
       }
     
       componentDidMount() {
-        fetch("http://localhost:3000/voo-2018-present.json")
+        fetch("http://localhost:3000/voo-highs.json")
           .then(res => res.json())
           .then(
             (result) => {
@@ -53,23 +47,29 @@ class LoadDataAndRunScenario extends React.Component {
           return <div>Loading...</div>;
         } else {
 
-          let data = convertData(items);
-          let tradeDays = getTradeDays(data, startDate, endDate, tradeFrequency);
+          const data = convertBasicData(items);
+          // all date values assigned to variables and passed around are timestamps not Date objects
+          const newStartDate = adjustStartToMarketDay(data, startDate);
+          const newEndDate = adjustEndToMarketDay(data, endDate);
+          if (newEndDate < newStartDate) {
+            console.error('newEndDate is before newStartDate');
+          }
+          const tradeDays = getTradeDays(data, newStartDate, newEndDate, tradeFrequency);
           const maxMuffins = Math.floor(spendinglimit/muffinPrice);
 
           // outcome
           const o = runBasicScenario(data, tradeDays, maxMuffins, muffinPrice, saleThreshold); // test this.
-          const duration = (endDate - startDate)/(1000*60*60*24);
+          const duration = (newEndDate - newStartDate)/(1000*60*60*24);
           const avgInvestmentPct = Math.round((o.averageInvestment/spendinglimit)*100) + "%";
           const returnsClassName = o.scenarioReturn > 0 ? "positive" : "negative";
-
+          const profitsClassName = o.totalProfits > 0 ? "positive" : "negative";
           return (
             <div>
               <h2>Outcome</h2>
               <ul>
                 <li>
                   <em>Profit: </em>
-                  <span className="money">{`${money.format(o.totalProfits)}`}</span>
+                  <span className={(o.totalProfits > 0) ? 'profit positive' : 'profit negative'}>{`${money.format(o.totalProfits)}`}</span>
                 </li>
                 <li>
                   <em>Sales: </em>
@@ -82,12 +82,18 @@ class LoadDataAndRunScenario extends React.Component {
                 <li>
                   <em>Scenario start price: </em>
                   {`${money.format(o.firstDayPrice)} `}
-                  <span className="dim">{`(${new Date(startDate).toDateString()})`}</span>
+                  <span className="dim">{`(${new Date(newStartDate).toDateString()})`}</span>
                 </li>
                 <li>
                   <em>Scenario end price: </em>
                   {`${money.format(o.lastDayPrice)} `}
-                  <span className="dim">{`(${new Date(endDate).toDateString()})`}</span>
+                  <span className="dim">{`(${new Date(newEndDate).toDateString()})`}</span>
+                </li>
+                <li>
+                  <em>Start date</em>: {`${new Date(newStartDate).toDateString()}`}
+                </li>
+                <li>
+                <em>End date:</em> {`${new Date(newEndDate).toDateString()}`}
                 </li>
                 <li>
                   <em>Length of run:</em> {`${duration.toString()} days`}

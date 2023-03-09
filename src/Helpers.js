@@ -1,4 +1,5 @@
-export const convertData = (items) => {
+// remove this after replacing BASIC with better data
+export const convertBasicData = (items) => {
   const convertedMap = new Map();
 
   items.forEach(element => {
@@ -22,6 +23,7 @@ export const getTradeDays = (data, startDate, endDate, tradeFrequency) => {
 
       // is current date still less than end date? If not, break.
       if (currentDay > endDate) {
+        console.log('how far does this break out of?');
         break;
       }
       price = getPrice(data, currentDay);
@@ -54,7 +56,7 @@ const getNewMuffin = (data, day, index, muffinPrice) => {
 const getNewEvent = (data, day, index, newMuffin, soldMuffins, costUnsoldMuffins) => {
   // Event day is unique identifier. This is fine for now.
   return {
-    'eventId': ++index,
+    'eventId': index,
     'date': day,
     'price': getPrice(data,day),
     'purchasedMuffin': newMuffin,
@@ -110,7 +112,7 @@ export const runBasicScenario = (data, days, maxMuffins, muffinPrice, saleThresh
         const priceChangePercent = getPriceChangePercent(muffins[i].purchasePrice, getPrice(data, day));
         if (priceChangePercent > saleThreshold) {
             saleIndexes.push(i);
-            console.log(`Muffin ${i+1} will sell ${priceChangePercent} higher DAY ${index}`)
+            //console.log(`Muffin ${i+1} will sell ${priceChangePercent} higher DAY ${index}`)
           // }
         }
       }
@@ -128,7 +130,7 @@ export const runBasicScenario = (data, days, maxMuffins, muffinPrice, saleThresh
         totalProfits += profit;
       }
 
-      console.log(`Sold ${saleIndexes.length} muffin(s) on ${new Date(day).toDateString()}`)
+      //(`Sold ${saleIndexes.length} muffin(s) on ${new Date(day).toDateString()}`)
     }
 
     // if we sold some today, or we have less than maxMuffins unsold, buy.
@@ -255,7 +257,7 @@ const getProfit = (muffinPrice, percentChange) => {
   return (muffinPrice * percentChange);
 }
 
-const getPriceChangePercent = (x, y) => {
+export const getPriceChangePercent = (x, y) => {
   return (y-x)/x;
 }
 
@@ -283,14 +285,6 @@ const getAverageInvestment = (investedAmountByDay) => {
   return total/investedAmountByDay.length;
 };
 
-const comparePrices = (x, y, saleThreshold = 0.02) => {
-  return (y < x) && getPriceChangePercent(x, y)  > saleThreshold;
-};
-
-// const canPurchaseMuffin = (muffins, tradeDay) => {
-//   return true;
-// };
-
 export const money = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
@@ -298,10 +292,6 @@ export const money = new Intl.NumberFormat('en-US', {
 
 export const formatPercent = (num) => {
   return Number(num/100).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:2});
-};
-
-const canSellMuffin = (muffinPurchasePrice, dayPrice) => {
-  return false;
 };
 
 export const isCloseToBirthday = (muffins, tradeDay) => {

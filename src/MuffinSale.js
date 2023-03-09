@@ -1,5 +1,5 @@
 import React from 'react';
-import {money} from "./Helpers";
+import {money, getPriceChangePercent} from "./Helpers";
 
 // 🛒 🧊 💸 🥮 👩🏻‍🍳 🎂 🙅🏻‍♀️ 🌞 📈 📉 🚫 🔴 🎉 🥳
 
@@ -8,7 +8,7 @@ class MuffinSale extends React.Component {
     return (  
       <li className="muffin" >
         <span className="positive">OUT </span>
-        🧁 #{`${this.props.id} (${this.props.purchasePrice}/${this.props.salePrice})`}
+        🧁 #{`${this.props.id} ${getPriceChangePercent(this.props.purchasePrice, this.props.salePrice).toFixed(4)} (${this.props.purchasePrice}/${this.props.salePrice})`}
         &nbsp;&#8212;&gt; <span className="positive"> {money.format(this.props.profit)}</span>
       </li>
     );
