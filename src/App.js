@@ -6,7 +6,7 @@ import { Table } from "./Table";
 import './App.css';
 
 
-export default function App() {
+function App() {
   return (
     <>
     <header>
@@ -29,3 +29,5 @@ export default function App() {
     </>
   )
 };
+
+export default App;

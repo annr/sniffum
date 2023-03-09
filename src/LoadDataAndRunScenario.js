@@ -1,7 +1,15 @@
 import React from "react";
 
 import TradeDay from "./TradeDay";
-import {convertData, getTradeDays, runBasicScenario, money, formatPercent} from "./Helpers";
+import {
+  getTradeDays,
+  runBasicScenario,
+  money,
+  formatPercent,
+  convertBasicData,
+  adjustStartToMarketDay,
+  adjustEndToMarketDay
+} from "./Helpers";
 
 //https://reactjs.org/docs/faq-ajax.html
 
@@ -88,12 +96,6 @@ class LoadDataAndRunScenario extends React.Component {
                   <em>Scenario end price: </em>
                   {`${money.format(o.lastDayPrice)} `}
                   <span className="dim">{`(${new Date(newEndDate).toDateString()})`}</span>
-                </li>
-                <li>
-                  <em>Start date</em>: {`${new Date(newStartDate).toDateString()}`}
-                </li>
-                <li>
-                <em>End date:</em> {`${new Date(newEndDate).toDateString()}`}
                 </li>
                 <li>
                   <em>Length of run:</em> {`${duration.toString()} days`}

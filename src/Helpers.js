@@ -9,6 +9,114 @@ export const convertBasicData = (items) => {
   return convertedMap;
 }
 
+export const massageData = (items) => {
+  // the data has several prices per day. we just need "High"
+
+  let newData = [];
+
+  items.forEach((element, index) => {
+    // get the date as a standard string.
+    // for some reson dates in this format 2022-02-18 get saved as teh day before.
+    // add one day to these to move
+    const oneDay = 60 * 60 * 24 * 1000;
+    const dateObj = new Date(element.Date)
+    const key = new Date(dateObj.getTime() + oneDay).toDateString();
+
+    const price = element.High;
+    let number;
+
+    if (!price.replace) {
+      // assume it's a number already
+      number = price;
+    } else {
+      number = Number(price.replace(/[^0-9.-]+/g,""));
+    }
+    const tempObj = {};
+    tempObj[key] = number
+    newData[index] = tempObj;
+  });
+  debugger;
+  return newData;
+}
+
+// returns an array on which day trades happen, and so they need to be real days and in the data
+const getDatasetStartDay = (data) => {
+  // Data is a map, and remains ordered, but the dataset MUST BE IN ASC ORDER
+  const firstDay = data.keys().next().value;
+  console.log("First day: " + firstDay)
+  return new Date(firstDay);
+};
+
+const getDatasetEndDay = (data) => {
+  // Data is a map, and remains ordered, but the dataset MUST BE IN ASC ORDER
+  return new Date(Array.from(data.keys()).pop());
+};
+
+const isMarketDayWithinData = (data, day) => {
+  return data.has(new Date(day).toDateString());
+};
+
+const isWithinStartRangeButNotMarketDay = (data, day) => {
+  return !isMarketDayWithinData(data, day) && day < getDatasetEndDay(data);
+};
+
+const isWithinEndRangeButNotMarketDay = (data, day) => {
+  return !isMarketDayWithinData(data, day) && day > getDatasetStartDay(data)
+};
+
+// these two functions may be combined and written more elegantly
+export const adjustStartToMarketDay = (data, startDate) => {
+  if (startDate < getDatasetStartDay(data)) {
+    return getDatasetStartDay(data);
+  }
+  if (startDate > getDatasetEndDay(data)) {
+    console.error("Selected start date is greater than last day of data set.")
+    return null;
+  }
+  if (!isMarketDayWithinData(data, startDate)) {
+    // return next closest date after the requested startDate
+    return getNextClosestMarketDay(data, startDate, true);
+  }
+  return startDate;
+};
+
+export const adjustEndToMarketDay = (data, endDate) => {
+  if (endDate > getDatasetEndDay(data)) {
+    return getDatasetEndDay(data);
+  }
+  if (endDate < getDatasetStartDay(data)) {
+    console.error("Selected end date is less than first day of data set.")
+    return null;
+  }
+  if (!isMarketDayWithinData(data, endDate)) {
+    // return next closest date after the requested startDate
+    return getNextClosestMarketDay(data, endDate, false);
+  }
+  return endDate;
+};
+
+const getNextClosestMarketDay = (data, date, ascFlag, forceWeekStart) => {
+  // Find next market day without reaching endDate or last day of data
+  // (TODO: add check for startDate < endDate. I'm skipping that for now.)
+  let newDate = date;
+  let failSafe = 0;
+  // failsafe will swallow an error, but you'll figure it out.
+  if (ascFlag) {
+    while (isWithinStartRangeButNotMarketDay(data, newDate) && failSafe < 20) {
+      failSafe++;
+      const oneDay = 60 * 60 * 24 * 1000;
+      newDate = new Date(newDate).getTime() + oneDay;
+    }
+  } else {
+    while (isWithinEndRangeButNotMarketDay(data, newDate) && failSafe < 20) {
+      failSafe++;
+      const oneDay = -(60 * 60 * 24 * 1000);
+      newDate = new Date(newDate).getTime() + oneDay;
+    }
+  }
+  return newDate;
+};
+
 export const getTradeDays = (data, startDate, endDate, tradeFrequency) => {
   let days = [];
   let currentDay = startDate;

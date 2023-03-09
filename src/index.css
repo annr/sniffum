@@ -28,6 +28,11 @@ ul li {
 }
 
 .positive, .new {
+  color: green;
+  font-weight: bold;
+}
+
+.positive-bright, .new {
   color: lightgreen;
   font-weight: bold;
 }
