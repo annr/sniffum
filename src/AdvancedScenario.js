@@ -1,5 +1,7 @@
 import React from "react";
 
+import Outcome from './Outcome';
+
 import TradeDay from "./TradeDay";
 import {
   getTradeDays,
@@ -63,86 +65,17 @@ class AdvancedScenario extends React.Component {
             console.error('newEndDate is before newStartDate');
           }
           const tradeDays = getTradeDays(data, newStartDate, newEndDate, tradeFrequency);
-          const maxMuffins = Math.floor(spendinglimit/muffinPrice);
 
+          const maxMuffins = Math.floor(spendinglimit/muffinPrice);
           // outcome
           const o = runBasicScenario(data, tradeDays, maxMuffins, muffinPrice, saleThreshold); // test this.
-          const duration = (newEndDate - newStartDate)/(1000*60*60*24);
-          const avgInvestmentPct = Math.round((o.averageInvestment/spendinglimit)*100) + "%";
-          const returnsClassName = o.scenarioReturn > 0 ? "positive-bright" : "negative";
-          const profitsClassName = o.totalProfits > 0 ? "positive" : "negative";
+          o.startDate = newStartDate;
+          o.endDate = newEndDate;
+          o.duration = (newEndDate - newStartDate)/(1000*60*60*24);
+          o.avgInvestmentPct = Math.round((o.averageInvestment/spendinglimit)*100) + "%";
+
           return (
-            <div>
-              <h2>Outcome</h2>
-              <ul>
-                <li>
-                  <em>Profit: </em>
-                  <span className={(o.totalProfits > 0) ? 'profit positive' : 'profit negative'}>{`${money.format(o.totalProfits)}`}</span>
-                </li>
-                <li>
-                  <em>Sales: </em>
-                  {`${money.format(o.totalSales)}`}
-                </li>
-                <li>
-                  <em>Unsold muffins gains or losses: </em>
-                  {`${money.format(o.unsoldGainsOrLosses)}`}
-                </li>
-                <li>
-                  <em>Scenario start price: </em>
-                  {`${money.format(o.firstDayPrice)} `}
-                  <span className="dim">{`(${new Date(newStartDate).toDateString()})`}</span>
-                </li>
-                <li>
-                  <em>Scenario end price: </em>
-                  {`${money.format(o.lastDayPrice)} `}
-                  <span className="dim">{`(${new Date(newEndDate).toDateString()})`}</span>
-                </li>
-                <li>
-                  <em>Start date</em>: {`${new Date(newStartDate).toDateString()}`}
-                </li>
-                <li>
-                <em>End date:</em> {`${new Date(newEndDate).toDateString()}`}
-                </li>
-                <li>
-                  <em>Length of run:</em> {`${duration.toString()} days`}
-                </li>
-                <li>
-                  <em>Market growth of scenario period: </em>
-                  <span className={(o.firstDayPrice < o.lastDayPrice) ? 'positive' : 'negative'}>{`${o.marketGrowthOfPeriod}`}</span>
-                </li>
-                <li>
-                  <em>Average investment over period: </em>
-                  {`${money.format(o.averageInvestment)} (${avgInvestmentPct})`}
-                </li>
-                <li>
-                  <em>Scenario (short-term) gains: </em>
-                  <span className={`${returnsClassName}`}>{`${formatPercent(o.scenarioReturn)}`} </span>
-                  <span className="dim">(profit/average-investment) </span>
-                </li>
-                <li>
-                  <em>Maximum invested at any time: </em>
-                  {`${o.maximumInvestedAtAnyTime}`}
-                </li>
-                <li>
-                  <em>Remaining unsold muffins (including cupcakes): </em>
-                  {`${o.remainingUnsoldMuffins.length}`}
-                </li>
-                <li>
-                  <em>Number of cupcakes: </em>
-                  {`${o.cupcakes.length}`}
-                </li>
-                <li>
-                  <em>Trade shutout days: </em>
-                  {`${o.shutOutDays.length} `}
-                </li>
-              </ul>
-              <h2>Trade Days</h2>
-              <div>
-              {o.events.map(event => (
-                <TradeDay {...event} />
-              ))}
-              </div>
-            </div>
+            <Outcome {...o} />
           );
         }
       }

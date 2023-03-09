@@ -173,13 +173,6 @@ const getNewEvent = (data, day, index, newMuffin, soldMuffins, costUnsoldMuffins
   };
 };
 
-const recordEvent = () => { // inddex will be day number
-  return {
-    'muffinsBought': [], // stores indices
-    'muffinsSold': [], // stores indices
-  };
-};
-
 // "days" is a little confusing. It's actually a trade event, not every day.
 export const runBasicScenario = (data, days, maxMuffins, muffinPrice, saleThreshold) => {
 
