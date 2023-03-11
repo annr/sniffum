@@ -18,6 +18,7 @@ export function Main() {
         spendinglimit={config.spendinglimit}
         tradeFrequency={config.tradeFrequency}
         saleThreshold={config.saleThreshold}
+        tradeAtStartOfWeekFlag={config.tradeAtStartOfWeekFlag}
       />
     </div>
   );
