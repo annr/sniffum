@@ -1,6 +1,6 @@
 import React from 'react';
 import TradeDay from "./TradeDay";
-import {money, formatPercent} from "./Helpers";
+import {money, formatPercent} from "./util/MoneyHelpers";
 
 class Outcome extends React.Component {
   render() {

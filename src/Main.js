@@ -1,5 +1,5 @@
 import Settings from './Settings';
-import LoadDataAndRunScenario from './LoadDataAndRunScenario';
+import DataLoader from './DataLoader';
 
 const {config} = require('./config');
 
@@ -11,7 +11,7 @@ export function Main() {
         <h1 className="app-title">🧁 Basic Muffins Scenario Runner</h1>
         <Settings />
       </header>
-      <LoadDataAndRunScenario          
+      <DataLoader
         muffinPrice={config.muffinPrice}
         startDate={config.startDate}
         endDate={config.endDate}

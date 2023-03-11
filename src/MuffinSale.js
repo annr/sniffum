@@ -1,5 +1,6 @@
 import React from 'react';
-import {money, getPriceChangePercent} from "./Helpers";
+import {money} from './util/MoneyHelpers';
+import {getPriceChangePercent} from './util/MuffinsHelpers'
 
 // 🛒 🧊 💸 🥮 👩🏻‍🍳 🎂 🙅🏻‍♀️ 🌞 📈 📉 🚫 🔴 🎉 🥳
 

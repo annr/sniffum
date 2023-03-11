@@ -1,4 +1,4 @@
-import {money} from "./Helpers";
+import {money} from "./util/MoneyHelpers";
 const {config} = require('./config');
 
 export default function Settings() {

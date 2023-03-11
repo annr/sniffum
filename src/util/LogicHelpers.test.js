@@ -1,6 +1,6 @@
 import {
   getDynamicThreshold
-} from "./Helpers";
+} from "./LogicHelpers";
 
 const baseDynamicThreshold = 0.022;
 const maxMuffins = 16;

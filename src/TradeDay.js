@@ -1,6 +1,6 @@
 import React from 'react';
 import './TradeDay.css';
-import {money} from "./Helpers";
+import {money} from "./util/MoneyHelpers";
 
 import MuffinPurchase from './MuffinPurchase';
 import MuffinSale from './MuffinSale';

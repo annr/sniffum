@@ -13,11 +13,11 @@ import {
   adjustDayToWeekBeginning,
   getPrice,
   getValidMarketDay,
-} from "./Helpers";
+} from "./util/DataHelpers";
 
 //https://reactjs.org/docs/faq-ajax.html
 
-class LoadDataAndRunScenario extends React.Component {
+class DataLoader extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -106,4 +106,4 @@ class LoadDataAndRunScenario extends React.Component {
 
 }
 
-export default LoadDataAndRunScenario;
+export default DataLoader;
