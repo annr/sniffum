@@ -21,14 +21,16 @@ class Outcome extends React.Component {
       cupcakes,
       shutOutDays,
       events,
+      maxReturnHypothetical,
     } = this.props;
 
     const duration = (endDate - startDate)/(1000*60*60*24);
     // const avgInvestmentPct = Math.round((averageInvestment/spendinglimit)*100) + "%";
     const returnsClassName = scenarioReturn > 0 ? "positive" : "negative";
+    const maxReturnsClassName = maxReturnHypothetical > 0 ? "positive" : "negative";
     return (  
         <div>
-        <h2>Outcome</h2>
+        <h2>Outcome <span className="dim">(config.js)</span></h2>
         <ul>
           <li>
             <em>Profit: </em>
@@ -91,6 +93,9 @@ class Outcome extends React.Component {
             {`${shutOutDays.length} `}
           </li>
         </ul>
+        <p>Gain or loss of 100% of spendingLimit invested in market as reference:
+        <span className={`${maxReturnsClassName}`}> {`${money.format(maxReturnHypothetical)}`} </span>
+        </p>
         <h2>Trade Days</h2>
         <div>
         {events.map(event => (

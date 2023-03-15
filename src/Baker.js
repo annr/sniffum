@@ -27,7 +27,11 @@ import {
   formatPercent,
 } from "./util/MoneyHelpers";
 
-export const runBasicScenario = (highPriceMap, data, days, maxMuffins, muffinCost, saleThreshold, isDynamic = false) => {
+// The basic scenario doesn't do anything dynamic.
+// It just takes an action once a week if it can.
+// It uses open price on that day in any case.
+
+export const runBasicScenario = (data, days, maxMuffins, muffinCost, saleThreshold, isDynamic = false) => {
 
   let muffins = [];
   let events = [];
@@ -51,7 +55,7 @@ export const runBasicScenario = (highPriceMap, data, days, maxMuffins, muffinCos
 
     // const dynamicThreshold = getDynamicThreshold(saleThreshold, muffins.length, maxMuffins);
 
-    const saleIndexes = getIndicesOfMuffinsToBeSold(highPriceMap, day, muffins, saleThreshold);
+    const saleIndexes = getIndicesOfMuffinsToBeSold(data, day, muffins, saleThreshold);
 
     // console.log(`Is dynamic: ${isDynamic} and sale indices: ${saleIndexes} and muffins ${muffins.length} length`);
 
@@ -62,9 +66,9 @@ export const runBasicScenario = (highPriceMap, data, days, maxMuffins, muffinCos
       for (let j = 0; j < saleIndexes.length; j++) {
         muffins[saleIndexes[j]].saleDate = new Date(day).toDateString();
 
-        muffins[saleIndexes[j]].salePrice = getPrice(highPriceMap, day);
+        muffins[saleIndexes[j]].salePrice = getPrice(data, day);
         // console.log(`Selling at ${getPrice(highPriceMap, day)} (high price) vs ${getPrice(data, day)} (open price)`)
-        const profit = getProfit(muffinCost, getPriceChangePercent(muffins[saleIndexes[j]].purchasePrice, getPrice(highPriceMap, day)));
+        const profit = getProfit(muffinCost, getPriceChangePercent(muffins[saleIndexes[j]].purchasePrice, getPrice(data, day)));
         muffins[saleIndexes[j]].profit = profit;
         totalProfits += profit;
       }

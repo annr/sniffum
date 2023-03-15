@@ -35,7 +35,7 @@ class Outcome extends React.Component {
     const lastDayPrice = getPrice(dataMap, tradeDays[tradeDays.length - 1]);
 
     // outcome
-    const o = runBasicScenario(highPriceMap, dataMap, tradeDays, maxMuffins, muffinCost, saleThreshold); // test this.
+    const o = runBasicScenario(dataMap, tradeDays, maxMuffins, muffinCost, saleThreshold); // test this.
 
     // the following vars are more config than outcome. Clean this up.
     o.startDate = tradeDays[0];
@@ -48,8 +48,7 @@ class Outcome extends React.Component {
     const maxStartShares = (spendinglimit/firstDayPrice);
     const maxWorthOnLastDay = maxStartShares * lastDayPrice;
     const maxReturnHypothetical = maxWorthOnLastDay - spendinglimit;
-    const returnsClassName = maxReturnHypothetical > 0 ? "positive" : "negative";
-
+    o.maxReturnHypothetical = maxReturnHypothetical;
 
     return (
       <div>
@@ -58,7 +57,7 @@ class Outcome extends React.Component {
         <p>
           This scenario is the first I thought to test, and it is the least amount of effort I can imagine.</p>
         <p>
-          In fact, I wanted to test to see if it was this easy to have an algorithm that would yield
+          I wanted to to see if this easy, low effort strategy would yield
           something in a down market, do well in a sideways market and do okay in an up market. I'll have to 
           make a big table will periods of a year to test, but that's not a perfect test as we'll see. 
         </p>
@@ -73,9 +72,6 @@ class Outcome extends React.Component {
         </p>
 
         <hr />
-        <p>Gain or loss of 100% of spendingLimit invested in market as reference:
-        <span className={`${returnsClassName}`}> {`${money.format(maxReturnHypothetical)}`} </span>
-        </p>
         <BasicOutcome {...o} />
       </div>
     );
