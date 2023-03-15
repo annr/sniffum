@@ -8,7 +8,7 @@ export default function Settings() {
       <h2>Settings</h2>
       <ul>
         <li>
-          <em>Muffin price:</em> {`${money.format(config.muffinPrice)}`}
+          <em>Muffin price:</em> {`${money.format(config.muffinCost)}`}
         </li>
         <li>
           <em>Spending limit:</em> {`${money.format(config.spendinglimit)}`}

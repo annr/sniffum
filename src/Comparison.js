@@ -1,7 +1,9 @@
 import React from "react";
-import Outcome from "./Outcome";
+import ComparisonTable from "./ComparisonTable";
 
-class Main extends React.Component {
+// YUCK DUPLICATED CODE!!!! 😭 😭 😭 😭 😭
+
+class Comparison extends React.Component {
 
   constructor(props) {
     super(props);
@@ -41,10 +43,10 @@ class Main extends React.Component {
     } else if (!isLoaded) {
       return <div>Loading...</div>;
     } else {
-      return <Outcome data={items} />;
+      return <ComparisonTable data={items} />;
     }
   }
 
 }
 
-export default Main;
+export default Comparison;

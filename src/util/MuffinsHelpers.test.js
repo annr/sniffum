@@ -3,20 +3,20 @@ import {
 } from "./MuffinsHelpers";
 
 import {
-  convertData,
+  getOpenPriceMap,
   getPrice,
 } from "./DataHelpers";
 
 import {items} from './TestData';
-const data = convertData(items);
+const data = getOpenPriceMap(items);
 
 const index = 0;
-const muffinPrice = 5000;
+const muffinCost = 5000;
 const day = 1645171200000;
 
 const sample =  {
   'id': index,
-  'cost': muffinPrice,
+  'cost': muffinCost,
   'purchaseDate': new Date(day).toDateString(),
   'purchasePrice': getPrice(data,day),
   'saleDate': null,
@@ -26,7 +26,7 @@ const sample =  {
   'currentGain': null,
 };
 
-const muffin = getNewMuffin(data, day, index, muffinPrice);
+const muffin = getNewMuffin(data, day, index, muffinCost);
 
 const sameObject =  JSON.stringify(sample) === JSON.stringify(muffin);
 

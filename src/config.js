@@ -1,11 +1,10 @@
 const config = {
-  muffinPrice: 5000.00,
+  startDate: Date.parse('1/17/2000'),
+  endDate: Date.parse('2/17/2000'),
   tradeFrequency: 7,
   spendinglimit: 80000.00,
-  startDate: Date.parse('2/18/2022'),
-  endDate: Date.parse('2/10/2023'),
+  muffinCost: 5000.00,
   saleThreshold: 0.022,
-  tradeAtStartOfWeekFlag: false,
+  tradeAtStartOfWeekFlag: true,
 }
-
 export {config};

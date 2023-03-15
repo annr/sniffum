@@ -1,26 +1,26 @@
 import { Route, Routes, Link } from "react-router-dom";
 import { Home } from "./Home";
-import { Main } from "./Main";
-import { Table } from "./Table";
-import './App.css';
-
+import Table from "./Table";
+import Main from "./Main";
+import Comparison from "./Comparison";
 
 function App() {
   return (
     <>
     <header>
-      <h1><Link to="/">Muffins</Link></h1>
       <nav>
-        <ul>
-          <li><Link to="/basic">Basic Muffin Scenario Runner</Link></li>
-          <li><Link to="/table">Comparison Table of Approaches</Link></li>
-        </ul>
-        <hr></hr>
+        <Link to="/">Home</Link> | &nbsp;
+        <Link to="/basic">Basic Scenario</Link> | &nbsp;
+        <Link to="/compare">Comparing approaches</Link> | &nbsp;
+        <Link to="/table">Exploration table TBD</Link>  | &nbsp;
+        <Link to="/table">Long term muffins</Link>
       </nav>
     </header>
+    <hr />
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/basic" element={<Main />} />
+      <Route path="/compare" element={<Comparison />} />
       <Route path="/table" element={<Table />} />
     </Routes>
     </>

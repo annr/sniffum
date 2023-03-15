@@ -1,12 +1,9 @@
 body {
-
-  background-color: #282c34;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #fff;
   margin: 3%;
 }
 
@@ -17,7 +14,6 @@ code {
 
 .profit {
   font-weight: bold;
-  border: 1px solid white;
   padding: 3px 6px;
   background-color: beige;
   border-radius: 3px;
@@ -57,11 +53,15 @@ ul li {
   font-size: smaller;
 }
 
-a {
-  color: #fff;
-}
-
 h1 a {
   text-decoration: none;
   cursor: pointer;
+}
+
+.outcome-table{
+  width:100%;
+}
+
+.outcome-table thead{
+  background-color: papayawhip;
 }

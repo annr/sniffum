@@ -7,8 +7,8 @@ import MuffinSale from './MuffinSale';
 
 class TradeDay extends React.Component {
   render() {
-    const sold = this.props.soldMuffins.map((muffin) =>
-       <MuffinSale {...muffin} />
+    const sold = this.props.soldMuffins.map((muffin, index) =>
+       <MuffinSale {...muffin} key={index} />
     );
     return (
       <div className="trade-day">

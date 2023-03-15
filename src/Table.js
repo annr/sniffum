@@ -1,5 +1,8 @@
-export function Table() {
-    return (
-        <div>table to go here.</div>
-    );
+export default function Table() {
+
+  return (
+    <div className="Table">
+      TBD
+    </div>
+  );
 }

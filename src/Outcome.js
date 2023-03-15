@@ -1,102 +1,82 @@
-import React from 'react';
-import TradeDay from "./TradeDay";
-import {money, formatPercent} from "./util/MoneyHelpers";
+import React from "react";
+import BasicOutcome from './BasicOutcome';
+import {money} from "./util/MoneyHelpers";
+
+import {
+  runBasicScenario
+} from './Baker';
+
+import {
+  getFirstMarketDaysOfWeekOverPeriod,
+  getDaysTradeFrequencyApart,
+  getOpenPriceMap,
+  getHighPriceMap,
+  getPrice,
+  getTradeDays,
+} from "./util/DataHelpers";
+
+const {config} = require('./config');
 
 class Outcome extends React.Component {
-  render() {
-    const {
-      totalProfits, 
-      totalSales,
-      unsoldGainsOrLosses,
-      scenarioReturn,
-      lastDayPrice,
-      firstDayPrice,
-      averageInvestment,
-      avgInvestmentPct,
-      startDate,
-      endDate,
-      marketGrowthOfPeriod,
-      maximumInvestedAtAnyTime,
-      remainingUnsoldMuffins,
-      cupcakes,
-      shutOutDays,
-      events,
-    } = this.props;
 
-    const duration = (endDate - startDate)/(1000*60*60*24);
-    // const avgInvestmentPct = Math.round((averageInvestment/spendinglimit)*100) + "%";
-    const returnsClassName = scenarioReturn > 0 ? "positive" : "negative";
-    return (  
-        <div>
-        <h2>Outcome</h2>
-        <ul>
-          <li>
-            <em>Profit: </em>
-            <span className={(totalProfits > 0) ? 'profit positive' : 'profit negative'}>{`${money.format(totalProfits)}`}</span>
-          </li>
-          <li>
-            <em>Sales: </em>
-            {`${money.format(totalSales)}`}
-          </li>
-          <li>
-            <em>Unsold muffins gains or losses: </em>
-            {`${money.format(unsoldGainsOrLosses)}`}
-          </li>
-          <li>
-            <em>Scenario start price: </em>
-            {`${money.format(firstDayPrice)} `}
-            <span className="dim">{`(${new Date(startDate).toDateString()})`}</span>
-          </li>
-          <li>
-            <em>Scenario end price: </em>
-            {`${money.format(lastDayPrice)} `}
-            <span className="dim">{`(${new Date(endDate).toDateString()})`}</span>
-          </li>
-          <li>
-            <em>Start date</em>: {`${new Date(startDate).toDateString()}`}
-          </li>
-          <li>
-            <em>End date:</em> {`${new Date(endDate).toDateString()}`}
-          </li>
-          <li>
-            <em>Length of run:</em> {`${duration.toString()} days`}
-          </li>
-          <li>
-            <em>Market growth of scenario period: </em>
-            <span className={(firstDayPrice < lastDayPrice) ? 'positive' : 'negative'}>{`${marketGrowthOfPeriod}`}</span>
-          </li>
-          <li>
-            <em>Average investment over period: </em>
-            {`${money.format(averageInvestment)} (${avgInvestmentPct})`}
-          </li>
-          <li>
-            <em>Scenario (short-term) gains: </em>
-            <span className={`${returnsClassName}`}>{`${formatPercent(scenarioReturn)}`} </span>
-            <span className="dim">(profit/average-investment) </span>
-          </li>
-          <li>
-            <em>Maximum invested at any time: </em>
-            {`${maximumInvestedAtAnyTime}`}
-          </li>
-          <li>
-            <em>Remaining unsold muffins (including cupcakes): </em>
-            {`${remainingUnsoldMuffins.length}`}
-          </li>
-          <li>
-            <em>Number of cupcakes: </em>
-            {`${cupcakes.length}`}
-          </li>
-          <li>
-            <em>Trade shutout days: </em>
-            {`${shutOutDays.length} `}
-          </li>
-        </ul>
-        <h2>Trade Days</h2>
-        <div>
-        {events.map(event => (
-          <TradeDay {...event} />
-        ))}
-        </div>
+  render() {
+    // this was my first pass: it's sloppy. 
+    const items = this.props.data;
+    const {startDate, endDate, tradeFrequency, spendinglimit, muffinCost, saleThreshold, tradeAtStartOfWeekFlag} = {...config};
+    const maxMuffins = Math.floor(spendinglimit/muffinCost);
+
+    // Use data converted to maps for quick lookups
+    const dataMap = getOpenPriceMap(items);
+    const highPriceMap = getHighPriceMap(items);
+
+    const tradeDays = getTradeDays(dataMap, startDate, endDate, tradeFrequency, tradeAtStartOfWeekFlag);
+
+    const firstDayPrice = getPrice(dataMap, tradeDays[0]);
+    const lastDayPrice = getPrice(dataMap, tradeDays[tradeDays.length - 1]);
+
+    // outcome
+    const o = runBasicScenario(highPriceMap, dataMap, tradeDays, maxMuffins, muffinCost, saleThreshold); // test this.
+
+    // the following vars are more config than outcome. Clean this up.
+    o.startDate = tradeDays[0];
+    o.endDate = tradeDays[tradeDays.length - 1];
+    o.duration = (o.startDate - o.endDate)/(1000*60*60*24);
+    o.avgInvestmentPct = Math.round((o.averageInvestment/spendinglimit)*100) + "%";
+    o.firstDayPrice = firstDayPrice;
+    o.lastDayPrice = lastDayPrice;
+
+    const maxStartShares = (spendinglimit/firstDayPrice);
+    const maxWorthOnLastDay = maxStartShares * lastDayPrice;
+    const maxReturnHypothetical = maxWorthOnLastDay - spendinglimit;
+    const returnsClassName = maxReturnHypothetical > 0 ? "positive" : "negative";
+
+
+    return (
+      <div>
+        <p>Edit config.js to change any variables</p>
+        <h2>Basic Scenario</h2>
+        <p>
+          This scenario is the first I thought to test, and it is the least amount of effort I can imagine.</p>
+        <p>
+          In fact, I wanted to test to see if it was this easy to have an algorithm that would yield
+          something in a down market, do well in a sideways market and do okay in an up market. I'll have to 
+          make a big table will periods of a year to test, but that's not a perfect test as we'll see. 
+        </p>
+        <p>
+          Choose some muffin cost and trading period, and make a limit you can spend on muffins. 
+          Every week at the same time -- I imagined morning but I haven't tested it -- buy a muffin if you haven't
+          reached the limit and sell muffins that have gained above the threshold in the config -- something like 2%.
+        </p>
+        <p>
+          That's it. You will have to take action at most 52 times. If you reach the spending limit you can't do anything until
+          you can sell muffins again.
+        </p>
+
+        <hr />
+        <p>Gain or loss of 100% of spendingLimit invested in market as reference:
+        <span className={`${returnsClassName}`}> {`${money.format(maxReturnHypothetical)}`} </span>
+        </p>
+        <BasicOutcome {...o} />
       </div>
     );
   }

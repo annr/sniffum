@@ -5,14 +5,23 @@ export const getPrice = (data, day) => {
 };
   
 // pluck Open price for now.
-export const convertData = (items) => {
+export const getOpenPriceMap = (items) => {
+  // make the more complex imported data into a simple map for lookups.
+  const convertedMap = new Map();
+  items.forEach(element => {
+    const key = element.Date;
+    convertedMap.set(key, element.Open);
+  });
+  return convertedMap;
+}
 
+export const getHighPriceMap = (items) => {
   // make the more complex imported data into a simple map for lookups.
   const convertedMap = new Map();
 
   items.forEach(element => {
     const key = element.Date;
-    convertedMap.set(key, element.Open);
+    convertedMap.set(key, element.High);
   });
   return convertedMap;
 }
@@ -42,34 +51,71 @@ export const massageData = (items) => {
     tempObj[key] = number
     newData[index] = tempObj;
   });
-  debugger;
   return newData;
 }
 
-const getDatasetStartDay = (data) => {
-  // Data is a map, and remains ordered, but the dataset MUST BE IN ASC ORDER
-  const firstDay = data.keys().next().value;
-  return new Date(firstDay);
+// Returns tradeDays
+export const getTradeDays = (dataMap, startDate, endDate, tradeFrequency, tradeAtStartOfWeekFlag) => {
+  // Reality check to start
+  checkValidityOfDates(dataMap, startDate, endDate);
+
+  // tradeFrequency from adjustedStart may not fall on selected endDate
+  let adjustedStart = getValidMarketDay(dataMap, startDate, 1);
+  let closestValidRangeEnd = getValidMarketDay(dataMap, endDate, -1);
+
+  // Date variables are generally passed around as timestamps not Date objects
+  if (tradeAtStartOfWeekFlag) { // override with start of market week
+    // if tradeFrequency is not a multiple of 7, we'll have trouble sticking to start of the week
+    if (tradeFrequency % 7 !== 0) {
+      throw new Error(`tradeFrequency must be a multiple of 7 in order to use tradeAtStartOfWeekFlag.`);
+    }
+    adjustedStart = adjustDayToWeekBeginning(dataMap, startDate);
+  }
+
+  // If tradeAtStartOfWeekFlag=true then most trade days will be Mondays, some Tuesdays.
+
+  return getDaysTradeFrequencyApart(dataMap, adjustedStart, closestValidRangeEnd, tradeFrequency);
 };
 
-const getDatasetEndDay = (data) => {
+export const getFirstDataDay = (data) => {
+  // Data is a map, and remains ordered, but the dataset MUST BE IN ASC ORDER
+  return new Date(data.keys().next().value);
+};
+
+export const getLastDataDay = (data) => {
   // Data is a map, and remains ordered, but the dataset MUST BE IN ASC ORDER
   return new Date(Array.from(data.keys()).pop());
 };
 
 export const getValidMarketDay = (data, from, directionSwtich) => {
+  // We assume startDate will use directionSwtich "1" and endDate will use "-1"
+  // This is error-prone and brittle
   let currentDay = from;
   if (isMarketDayWithinData(data, currentDay)) {
     return currentDay;
   }
-  // otherwise search for and return first market day in direction
+  // Otherwise search for and return first market day using directionSwitch
+  let iterations = 0;
   do {
+    // currentDay goes either forwards or backwards.
+    //   If going forwards: must be less than last day in data
+    //   If going backwards: must be greater than first day in data
     currentDay += (DAY_IN_MS * directionSwtich);
-    if (currentDay > getDatasetEndDay(data)) {
-       return null;
+
+    // Neither of these situations should ever happen:
+    if ((directionSwtich > 0) && currentDay > getLastDataDay(data)) {
+       console.error(`Ascending (start) date reached end of dataset range`);
     }
+    if ((directionSwtich < 0) && currentDay < getFirstDataDay(data)) {
+      console.error(`Decending (end) date reached beginning of dataset range`);
+    }
+
+    iterations++;
   } while (!isMarketDayWithinData(data, currentDay));
 
+  if(iterations > 1000) {
+    console.error(`Requested date far outside of dataset: ${iterations} iterations`)
+  }
   return currentDay;
 };
 
@@ -78,47 +124,53 @@ const isMarketDayWithinData = (data, day) => {
 };
 
 const isWithinStartRangeButNotMarketDay = (data, day) => {
-  return !isMarketDayWithinData(data, day) && day < getDatasetEndDay(data);
+  return !isMarketDayWithinData(data, day) && day < getLastDataDay(data);
 };
 
 const isWithinEndRangeButNotMarketDay = (data, day) => {
-  return !isMarketDayWithinData(data, day) && day > getDatasetStartDay(data)
+  return !isMarketDayWithinData(data, day) && day > getFirstDataDay(data)
 };
 
 // get the next Monday, or if a holiday, Tuesday
 export const adjustDayToWeekBeginning = (data, day) => {
-  if (isMarketDayWithinData(data, day) && new Date(day).getDay() == 1) {
+
+  let adjustedDay = day;
+
+  // passed dates have been adjusted to be in dataset. If it is a Monday, return
+  if (new Date(day).getDay() == 1) {
     return day;
   }
-  let failSafe = 0;
-  let adjustedDay;
 
-  const mondayOffset = new Date(day).getDay() == 0 ? DAY_IN_MS : (-(new Date(day).getDay() - 8) * DAY_IN_MS);
+  // Otherwise, adjust it to a Monday
+  // 0: Sunday
+  // 1: Monday
+  // 2: Tuesday ..etc.
+  const mondayOffset = new Date(adjustedDay).getDay() == 0 ? DAY_IN_MS : (-(new Date(adjustedDay).getDay() - 8) * DAY_IN_MS);
   adjustedDay = day + mondayOffset;
 
-  // if that Monday is not in dataset, try the next day, Tuesday
-  if (!isMarketDayWithinData(data, day)) {
-    return adjustedDay += DAY_IN_MS;
+  // if THAT Monday is not in dataset, try the next day, Tuesday
+  if (!isMarketDayWithinData(data, adjustedDay)) {
+    adjustedDay += DAY_IN_MS;
   }
   // if Tues is also not a market day, bust out, something is wrong
-  if (!isMarketDayWithinData(data, day)) {
-    console.error('Tuesday not a market day!?');
+  if (!isMarketDayWithinData(data, adjustedDay)) {
+    console.error('Tuesday ALSO not a market day!?');
   }
   return adjustedDay;
 };
 
-export const checkLogicOfDates = (data, startDate, endDate) => {
-  if ((startDate || endDate) < getDatasetStartDay(data) || (startDate || endDate) > getDatasetEndDay(data)) {
+export const checkValidityOfDates = (data, startDate, endDate) => {
+  if ((startDate || endDate) < getFirstDataDay(data) || (startDate || endDate) > getLastDataDay(data)) {
     console.error("Selected date outside of data set.");
   }
 };
 
 // these two functions may be combined and written more elegantly
 export const adjustStartToMarketDay = (data, startDate) => {
-  if (startDate < getDatasetStartDay(data)) {
-    return getDatasetStartDay(data);
+  if (startDate < getFirstDataDay(data)) {
+    return getFirstDataDay(data);
   }
-  if (startDate > getDatasetEndDay(data)) {
+  if (startDate > getLastDataDay(data)) {
     console.error("Selected start date is greater than last day of data set.")
     return null;
   }
@@ -130,10 +182,10 @@ export const adjustStartToMarketDay = (data, startDate) => {
 };
 
 export const adjustEndToMarketDay = (data, endDate) => {
-  if (endDate > getDatasetEndDay(data)) {
-    return getDatasetEndDay(data);
+  if (endDate > getLastDataDay(data)) {
+    return getLastDataDay(data);
   }
-  if (endDate < getDatasetStartDay(data)) {
+  if (endDate < getFirstDataDay(data)) {
     console.error("Selected end date is less than first day of data set.")
     return null;
   }
@@ -195,7 +247,7 @@ export const getDaysTradeFrequencyApart = (data, startDate, endDate, tradeFreque
   let days = [];
   let currentDay = startDate;
   days.push(getValidMarketDay(data, currentDay, 1));
-  while (currentDay + period < endDate) {
+  while (currentDay + period <= endDate) {
     currentDay += period;
     days.push(getValidMarketDay(data, currentDay, 1));
   }
