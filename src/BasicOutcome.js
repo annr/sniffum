@@ -2,7 +2,7 @@ import React from 'react';
 import TradeDay from "./TradeDay";
 import {money, formatPercent} from "./util/MoneyHelpers";
 
-class Outcome extends React.Component {
+class BasicOutcome extends React.Component {
   render() {
     const {
       totalProfits, 
@@ -107,4 +107,4 @@ class Outcome extends React.Component {
   }
 }
 
-export default Outcome;
+export default BasicOutcome;

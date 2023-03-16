@@ -15,7 +15,6 @@ code {
 .profit {
   font-weight: bold;
   padding: 3px 6px;
-  background-color: beige;
   border-radius: 3px;
 }
 
@@ -64,4 +63,15 @@ h1 a {
 
 .outcome-table thead{
   background-color: papayawhip;
+}
+
+td {
+  font-size: 11pt;
+}
+
+.muffins-return {
+  background-color: rgb(235, 235, 250);
+}
+.table-integer {
+  text-align: right;
 }
