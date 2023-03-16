@@ -7,9 +7,9 @@ import {
 
 import {
   getOpenPriceMap,
-  getHighPriceMap,
   getPrice,
   getTradeDays,
+  getYearPeriodSets,
 } from "./util/DataHelpers";
 
 const {config} = require('./config');
@@ -25,36 +25,45 @@ class BasicTable extends React.Component {
     // Use data converted to maps for quick lookups
     const dataMap = getOpenPriceMap(items);
 
+    const yearPeriods = getYearPeriodSets(dataMap, true);
+
+    let outcomes = [];
+
     const tradeDays = getTradeDays(dataMap, startDate, endDate, tradeFrequency, tradeAtStartOfWeekFlag);
 
-    const firstDayPrice = getPrice(dataMap, tradeDays[0]);
-    const lastDayPrice = getPrice(dataMap, tradeDays[tradeDays.length - 1]);
+    for(let j=0; j < yearPeriods.length; j++) {
+      const tradeDaysByYearPeriod = getTradeDays(dataMap, yearPeriods[j][0], yearPeriods[j][1], tradeFrequency);
 
-    // outcome
-    const o = runBasicScenario(dataMap, tradeDays, maxMuffins, muffinCost, saleThreshold); // test this.
+      const outcome = runBasicScenario(dataMap, tradeDaysByYearPeriod, maxMuffins, muffinCost, saleThreshold); // test this.
 
-    // the following vars are more config than outcome. Clean this up.
-    o.startDate = tradeDays[0];
-    o.endDate = tradeDays[tradeDays.length - 1];
-    o.avgInvestmentPct = Math.round((o.averageInvestment/spendinglimit)*100) + "%";
-    o.firstDayPrice = firstDayPrice;
-    o.lastDayPrice = lastDayPrice;
+      // the following vars are more config than outcome. Clean this up.
+      outcome.startDate = yearPeriods[j][0];
+      outcome.endDate = yearPeriods[j][1];
 
-    const maxStartShares = (spendinglimit/firstDayPrice);
-    const maxWorthOnLastDay = maxStartShares * lastDayPrice;
-    const maxReturnHypothetical = maxWorthOnLastDay - spendinglimit;
-    o.maxReturnHypothetical = maxReturnHypothetical;
+      outcome.avgInvestmentPct = Math.round((outcome.averageInvestment/spendinglimit)*100) + "%";
+      outcome.firstDayPrice = getPrice(dataMap, yearPeriods[j][0]);
+      outcome.lastDayPrice = getPrice(dataMap, yearPeriods[j][1]);;
+
+      const maxStartShares = (spendinglimit/outcome.firstDayPrice);
+      const maxWorthOnLastDay = maxStartShares * outcome.lastDayPrice;
+      const maxReturnHypothetical = maxWorthOnLastDay - spendinglimit;
+      outcome.maxReturnHypothetical = maxReturnHypothetical;
+
+      outcomes.push(outcome);
+    }
 
     return (
       <div>
         <p>Edit config.js to adjust muffin cost, spending limit, threshold.</p>
+        <h2>Basic Scenario Table</h2>
+        <p>Like <a href="/basic">Basic Scenario</a> but run for every year.</p>
         <p>
           Choose some muffin cost and trading period, and make a limit you can spend on muffins. 
           Every week at the same time -- I imagined morning but I haven't tested it -- buy a muffin if you haven't
           reached the limit and sell muffins that have gained above the threshold in the config -- something like 2%.
         </p>
         <hr />
-        <table className="table">
+        <table className="table table-striped">
           <thead>
             <tr>
               <th>Run</th>
@@ -71,7 +80,9 @@ class BasicTable extends React.Component {
             </tr>
           </thead>
           <tbody className="table-striped">
-            <BasicTableRow {...o} />
+            {outcomes.map((outcome, index) =>
+              <BasicTableRow {...outcome} key={index} />
+            )}
           </tbody>
         </table>
       </div>

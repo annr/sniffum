@@ -7,7 +7,7 @@ import {
   getPrice,
 } from "./DataHelpers";
 
-import {items} from './TestData';
+import {items} from './StaticTestData';
 const data = getOpenPriceMap(items);
 
 const index = 0;

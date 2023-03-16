@@ -1,16 +1,12 @@
 import React from "react";
 import BasicOutcome from './BasicOutcome';
-import {money} from "./util/MoneyHelpers";
 
 import {
   runBasicScenario
 } from './Baker';
 
 import {
-  getFirstMarketDaysOfWeekOverPeriod,
-  getDaysTradeFrequencyApart,
   getOpenPriceMap,
-  getHighPriceMap,
   getPrice,
   getTradeDays,
 } from "./util/DataHelpers";
@@ -27,7 +23,6 @@ class Outcome extends React.Component {
 
     // Use data converted to maps for quick lookups
     const dataMap = getOpenPriceMap(items);
-    const highPriceMap = getHighPriceMap(items);
 
     const tradeDays = getTradeDays(dataMap, startDate, endDate, tradeFrequency, tradeAtStartOfWeekFlag);
 

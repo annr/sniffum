@@ -90,6 +90,7 @@ export const getLastDataDay = (data) => {
 export const getValidMarketDay = (data, from, directionSwtich) => {
   // We assume startDate will use directionSwtich "1" and endDate will use "-1"
   // This is error-prone and brittle
+
   let currentDay = from;
   if (isMarketDayWithinData(data, currentDay)) {
     return currentDay;
@@ -111,11 +112,12 @@ export const getValidMarketDay = (data, from, directionSwtich) => {
     }
 
     iterations++;
-  } while (!isMarketDayWithinData(data, currentDay));
+  } while (!isMarketDayWithinData(data, currentDay) && iterations < 1000);
 
   if(iterations > 1000) {
-    console.error(`Requested date far outside of dataset: ${iterations} iterations`)
+    console.error(`Requested date too far outside of dataset: ${iterations} iterations`)
   }
+
   return currentDay;
 };
 
@@ -253,3 +255,36 @@ export const getDaysTradeFrequencyApart = (data, startDate, endDate, tradeFreque
   }
   return days;
 };
+
+export const getYearPeriodSets = (data, includeMidYear = false) => {
+  let periods = [];
+  const years = yearsFrom(new Date(getFirstDataDay(data)).getFullYear());
+
+  for(let i = 0; i < years.length - 1; i++) {
+    let firstDay = new Date(years[i], 0, 1).valueOf();
+    let lastDay = new Date(years[i], 11, 31).valueOf();
+    firstDay = getValidMarketDay(data, firstDay, 1);
+    lastDay = getValidMarketDay(data, lastDay, -1);
+
+    periods.push([firstDay, lastDay]);
+
+    // don't add mid-year to the last (current) year.
+    if((i < years.length-2) && includeMidYear) {
+      let firstDayMidYear = new Date(years[i], 5, 1).valueOf();
+      let lastDayMidYear = new Date(years[i], 16, 31).valueOf();
+      firstDayMidYear = getValidMarketDay(data, firstDayMidYear, 1);
+      lastDayMidYear = getValidMarketDay(data, lastDayMidYear, -1);
+      periods.push([firstDayMidYear, lastDayMidYear]);
+    }
+  }
+  return periods;
+};
+
+export const yearsFrom = function(startYear) {
+  let years = [];
+  let currentYear = new Date().getFullYear();
+  while (startYear <= currentYear) {
+      years.push(startYear++);
+  }
+  return years;
+}

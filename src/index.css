@@ -69,9 +69,10 @@ td {
   font-size: 11pt;
 }
 
-.muffins-return {
+td.muffins-return {
   background-color: rgb(235, 235, 250);
 }
+
 .table-integer {
   text-align: right;
 }
