@@ -4,7 +4,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  margin: 3%;
+  margin: 1% 3%;
 }
 
 code {
@@ -14,8 +14,6 @@ code {
 
 .profit {
   font-weight: bold;
-  padding: 3px 6px;
-  border-radius: 3px;
 }
 
 ul li {
@@ -24,17 +22,14 @@ ul li {
 
 .positive, .new {
   color: green;
-  font-weight: bold;
 }
 
 .positive-bright, .new {
   color: lightgreen;
-  font-weight: bold;
 }
 
 .negative {
   color: red;
-  font-weight: bold;
 }
 
 .scenario-return {
@@ -75,4 +70,33 @@ td.muffins-return {
 
 .table-integer {
   text-align: right;
+}
+
+ul.config-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+ul.config-list li {
+  float: left;
+  padding: 3px 10px;
+  border-left: 1px solid lightgray;
+  text-align: center;
+  background-color: papayawhip;
+  padding-right: 20px;
+}
+
+.label {
+  color: olive;
+}
+
+ul.summary-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  float: left;
+  padding-right: 100px;
 }

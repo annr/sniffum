@@ -1,11 +1,10 @@
 import React from 'react';
-import TradeDay from "./TradeDay";
 import {money, formatPercent} from "./util/MoneyHelpers";
 
 class BasicTableRow extends React.Component {
   render() {
     const {
-      totalProfits, 
+      totalProfit,
       totalSales,
       unsoldGainsOrLosses,
       scenarioReturn,
@@ -19,26 +18,44 @@ class BasicTableRow extends React.Component {
       maximumInvestedAtAnyTime,
       remainingUnsoldMuffins,
       shutOutDays,
-      events,
       maxReturnHypothetical,
     } = this.props;
 
-    // const avgInvestmentPct = Math.round((averageInvestment/spendinglimit)*100) + "%";
     const returnsClassName = scenarioReturn > 0 ? "positive" : "negative";
+    const shutOutDaysClassName = shutOutDays.length < 20 ? "" : "negative";
     const maxReturnsClassName = maxReturnHypothetical > 0 ? "dim positive" : "dim negative";
+
+    let yearType = <strong>〰️</strong>;
+    if(marketGrowthOfPeriod > 3) {
+      yearType = <span className='positive'>↗</span>;
+    }
+    if(marketGrowthOfPeriod < -3) {
+      yearType = <span className='negative'>↘</span>;
+    }
+  
+    let outcomeEmoji = "🥱";
+    const runVsMarket = scenarioReturn - marketGrowthOfPeriod;
+    if(runVsMarket > 2) {
+      outcomeEmoji = "✅";
+    }
+    if(runVsMarket < 0.5) {
+      outcomeEmoji = "⛔️";
+    }
+    // console.log(`run ${scenarioReturn} market ${marketGrowthOfPeriod} difference ${scenarioReturn - marketGrowthOfPeriod}`)
     return (  
     <tr>
-      <td>{`${new Date(startDate).toLocaleDateString("en-US")} - ${new Date(endDate).toLocaleDateString("en-US")}`}</td>
-      <td><span className={(totalProfits > 0) ? 'profit positive' : 'profit negative'}>{`${money.format(totalProfits)}`}</span></td>
+      <td>{`${new Date(startDate).toDateString()} - ${new Date(endDate).toDateString()}`}</td>
+      <td><span className={(totalProfit > 0) ? 'profit positive' : 'profit negative'}>{`${money.format(totalProfit)}`}</span></td>
       <td>{`${money.format(totalSales)}`}</td>
-      <td>{`${money.format(unsoldGainsOrLosses)}`}</td>
+      <td>{<span className={(unsoldGainsOrLosses > 0) ? 'positive' : 'negative'}>{`${money.format(unsoldGainsOrLosses)}`}</span>}</td>
       <td className="muffins-return"><span className={`${returnsClassName}`}>{`${formatPercent(scenarioReturn)}`} </span></td>
-      <td><span className={(firstDayPrice < lastDayPrice) ? 'positive' : 'negative'}>{`${marketGrowthOfPeriod}`}</span> <span className={maxReturnsClassName}>({money.format(maxReturnHypothetical)})</span></td>
-      <td>{`${money.format(averageInvestment)} (${avgInvestmentPct})`}</td>
-      <td>{`${maximumInvestedAtAnyTime}`}</td>
+      <td><span className={(firstDayPrice < lastDayPrice) ? 'positive' : 'negative'}>{`${formatPercent(marketGrowthOfPeriod)}`}</span> <span className={maxReturnsClassName}>({money.format(maxReturnHypothetical)})</span></td>
+      <td>{`${money.format(averageInvestment)} (${Math.round(avgInvestmentPct)+"%"})`}</td>
+      <td>{`${money.format(maximumInvestedAtAnyTime)}`}</td>
       <td className="table-integer">{`${remainingUnsoldMuffins.length}`}</td>
-      <td className="table-integer">{`${shutOutDays.length} `}</td>
-      <td className="table-integer">{`${events.length} `}</td>
+      <td className="table-integer"><span className={`${shutOutDaysClassName}`}>{`${shutOutDays.length}`} </span></td>
+      <td className="text-center">{yearType}</td>
+      <td className="table-integer">{`${outcomeEmoji}`}</td>
     </tr>
     );
   }

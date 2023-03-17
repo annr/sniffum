@@ -1,5 +1,5 @@
-export const getReturn = (totalProfits, averageInvestment) => {
-  return (totalProfits/averageInvestment)*100;
+export const getReturn = (totalProfit, averageInvestment) => {
+  return (totalProfit/averageInvestment)*100;
 }
 
 export const getAverageInvestment = array => array.reduce((a, b) => a + b) / array.length;

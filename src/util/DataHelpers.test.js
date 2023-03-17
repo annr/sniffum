@@ -7,6 +7,7 @@ import {
   getTradeDays,
   yearsFrom,
   getYearPeriodSets,
+  getDaysTradeFrequencyApart,
   runBasicScenario
 } from "./DataHelpers";
 
@@ -24,11 +25,14 @@ const startDate = Date.parse('1/17/2000'); // Mon Jan 17 2000 (a holiday)
 const validDay = Date.parse('1/18/2000'); // Tue Jan 18 2000
 const endDate = Date.parse('2/17/2000'); // Thu Feb 17 2000
 
-const outsideDataStartDate = Date.parse('1/5/1999');
-const outsideDataEndDate = Date.parse('1/5/2024');
+const beforeDataStartDate = Date.parse('1/5/1999');
+const afterDataEndDate = Date.parse('1/5/2024');
 
 const yearPeriodStart = Date.parse('1/01/2019');
+const yearPeriodFirstValidDay = getValidMarketDay(data, yearPeriodStart, 1);
+
 const yearPeriodEnd = Date.parse('12/31/2019');
+const yearPeriodLastValidDay = getValidMarketDay(data, yearPeriodEnd, -1);
 
 const endDateMultipleOfFrequency = Date.parse('2/15/2000') // Tue Feb 15 2000
 
@@ -76,19 +80,19 @@ test('getValidMarketDay: If start date is a Monday holiday, return the following
 });
 
 test('getValidMarketDay: If requested start is earlier than first dataset day, return firstDataDay', () => {
-  const day = getValidMarketDay(data, outsideDataStartDate, 1);
+  const day = getValidMarketDay(data, beforeDataStartDate, 1);
   expect(day).toBe(firstDataDay);
 });
 
 test('getValidMarketDay: If requested end is later than first dataset day, return last', () => {
-  const day = getValidMarketDay(data, outsideDataEndDate, -1);
+  const day = getValidMarketDay(data, afterDataEndDate, -1);
   expect(day).toBe(lastDataDay);
 });
 
 //
 // getTradeDays
 //
-const expectedTradeDays = [948182400000, 948787200000, 949392000000, 949996800000, 950601600000];
+const expectedTradeDays = [948182400000, 948787200000, 949392000000, 949996800000, 950601600000, 950774400000];
 
 test('getTradeDays over short period returns expected values', () => {
   const values = getTradeDays(data, startDate, endDate, tradeFrequency, tradeAtStartOfWeekFlag);
@@ -105,11 +109,10 @@ test('getTradeDays returns expected values when period is multiple of tradeFrequ
   expect(values).toStrictEqual(expectedTradeDays);
 });
 
-test('getTradeDays returns 52 days when period is one year', () => {
+test('getTradeDays returns 53 days when period is one year', () => {
   const values = getTradeDays(data, yearPeriodStart, yearPeriodEnd, tradeFrequency);
-  expect(values.length).toStrictEqual(52);
+  expect(values.length).toBe(53);
 });
-
 //
 // yearsFrom
 //
@@ -141,6 +144,34 @@ test('getYearPeriodSets with mid year flag returns count ((years.length - 1) * 2
   const periods = getYearPeriodSets(data, true);
   expect(periods.length).toStrictEqual((((years.length - 1) * 2) - 1));
 });
+
+//
+// getDaysTradeFrequencyApart
+//
+//   The mean of getTradeDays, but a separate function
+
+test('getDaysTradeFrequencyApart returns correct trade days', () => {
+  const tradeDays = getDaysTradeFrequencyApart(data, yearPeriodStart, yearPeriodEnd, tradeFrequency);
+
+  // first should be first market day of year
+  expect(tradeDays[0]).toBe(yearPeriodFirstValidDay);
+
+  // last should be last market day of year
+  expect(tradeDays[tradeDays.length - 1]).toBe(yearPeriodLastValidDay);
+
+  // total should be 53
+  expect(tradeDays.length).toBe(53);
+});
+
+test('getDaysTradeFrequencyApart returns 53 trade days for any period', () => {
+  const yearPeriods = getYearPeriodSets(data, true);
+  for(let j=0; j < yearPeriods.length; j++) {
+    const tradeDaysByYearPeriod = getTradeDays(data, yearPeriods[j][0], yearPeriods[j][1], tradeFrequency);
+    expect(tradeDays.length).toBe(53);
+  }
+});
+
+//     const yearPeriods = getYearPeriodSets(dataMap, true);
 
 //
 // runScenario

@@ -1,7 +1,10 @@
 import React from "react";
 import BasicTableRow from './BasicTableRow';
+import ConfigDisplay from './TableConfigDisplay';
+import TableSummaryDisplay from './TableSummaryDisplay';
 
 import {
+  getSumsFromOutcomes,
   runBasicScenario
 } from './Baker';
 
@@ -19,20 +22,18 @@ class BasicTable extends React.Component {
   render() {
     // this was my first pass: it's sloppy. 
     const items = this.props.data;
-    const {startDate, endDate, tradeFrequency, spendinglimit, muffinCost, saleThreshold, tradeAtStartOfWeekFlag} = {...config};
+    const {tradeFrequency, spendinglimit, muffinCost, saleThreshold} = {...config};
     const maxMuffins = Math.floor(spendinglimit/muffinCost);
 
     // Use data converted to maps for quick lookups
     const dataMap = getOpenPriceMap(items);
 
-    const yearPeriods = getYearPeriodSets(dataMap, true);
+    const yearPeriods = getYearPeriodSets(dataMap, false);
 
     let outcomes = [];
 
-    const tradeDays = getTradeDays(dataMap, startDate, endDate, tradeFrequency, tradeAtStartOfWeekFlag);
-
     for(let j=0; j < yearPeriods.length; j++) {
-      const tradeDaysByYearPeriod = getTradeDays(dataMap, yearPeriods[j][0], yearPeriods[j][1], tradeFrequency);
+      const tradeDaysByYearPeriod = getTradeDays(dataMap, yearPeriods[j][0], yearPeriods[j][1], tradeFrequency, false);
 
       const outcome = runBasicScenario(dataMap, tradeDaysByYearPeriod, maxMuffins, muffinCost, saleThreshold); // test this.
 
@@ -40,7 +41,7 @@ class BasicTable extends React.Component {
       outcome.startDate = yearPeriods[j][0];
       outcome.endDate = yearPeriods[j][1];
 
-      outcome.avgInvestmentPct = Math.round((outcome.averageInvestment/spendinglimit)*100) + "%";
+      outcome.avgInvestmentPct = (outcome.averageInvestment/spendinglimit)*100;
       outcome.firstDayPrice = getPrice(dataMap, yearPeriods[j][0]);
       outcome.lastDayPrice = getPrice(dataMap, yearPeriods[j][1]);;
 
@@ -48,21 +49,26 @@ class BasicTable extends React.Component {
       const maxWorthOnLastDay = maxStartShares * outcome.lastDayPrice;
       const maxReturnHypothetical = maxWorthOnLastDay - spendinglimit;
       outcome.maxReturnHypothetical = maxReturnHypothetical;
+      outcome.tradeDaysLength = tradeDaysByYearPeriod.length;
 
       outcomes.push(outcome);
     }
+
+    //const summary = getSumsFromOutcomes(outcomes);
 
     return (
       <div>
         <p>Edit config.js to adjust muffin cost, spending limit, threshold.</p>
         <h2>Basic Scenario Table</h2>
-        <p>Like <a href="/basic">Basic Scenario</a> but run for every year.</p>
+        <p>Like <a href="/basic">Basic Scenario</a> but run for every year in dataset.</p>
         <p>
-          Choose some muffin cost and trading period, and make a limit you can spend on muffins. 
-          Every week at the same time -- I imagined morning but I haven't tested it -- buy a muffin if you haven't
-          reached the limit and sell muffins that have gained above the threshold in the config -- something like 2%.
+          Choose some muffin cost and buy/sell (trade) frequency, and make a limit you can spend on muffins. 
+          Every week at the same time -- I imagined Open price but I haven't tested it -- buy a muffin if you haven't
+          reached the limit and sell muffins that have gained above sale threshold -- something like 2%.
         </p>
+        <ConfigDisplay {...config} />
         <hr />
+        {/* <TableSummaryDisplay {...getSumsFromOutcomes(outcomes)} /> */}
         <table className="table table-striped">
           <thead>
             <tr>
@@ -73,10 +79,11 @@ class BasicTable extends React.Component {
               <th>Run return <span className="dim">(short-term)</span></th>
               <th>Market growth <span className="dim">(max at limit)</span></th>
               <th>Avg. invested</th>
-              <th>Max invested at any time</th>
-              <th className="table-integer"># Unsold</th>
-              <th className="table-integer">Shutout days</th>
-              <th className="table-integer"># Events</th>
+              <th>Max invested</th>
+              <th className="table-integer">Unsold</th>
+              <th className="table-integer">Shutouts</th>
+              <th className="text-center">Period type</th>
+              <th className="table-integer">🧁</th>
             </tr>
           </thead>
           <tbody className="table-striped">

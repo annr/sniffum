@@ -1,5 +1,6 @@
 import React from "react";
 import BasicOutcome from './BasicOutcome';
+import ConfigDisplay from './ConfigDisplay';
 
 import {
   runBasicScenario
@@ -26,17 +27,17 @@ class Outcome extends React.Component {
 
     const tradeDays = getTradeDays(dataMap, startDate, endDate, tradeFrequency, tradeAtStartOfWeekFlag);
 
-    const firstDayPrice = getPrice(dataMap, tradeDays[0]);
-    const lastDayPrice = getPrice(dataMap, tradeDays[tradeDays.length - 1]);
+    const adjustedStart = tradeDays[0];
+    const adjustedEnd = tradeDays[tradeDays.length - 1];
+
+    const firstDayPrice = getPrice(dataMap, adjustedStart);
+    const lastDayPrice = getPrice(dataMap, adjustedEnd);
 
     // outcome
     const o = runBasicScenario(dataMap, tradeDays, maxMuffins, muffinCost, saleThreshold); // test this.
 
-    // the following vars are more config than outcome. Clean this up.
-    o.startDate = tradeDays[0];
-    o.endDate = tradeDays[tradeDays.length - 1];
-    o.duration = (o.startDate - o.endDate)/(1000*60*60*24);
-    o.avgInvestmentPct = Math.round((o.averageInvestment/spendinglimit)*100) + "%";
+    o.duration = (adjustedEnd - adjustedStart)/(1000*60*60*24);
+    o.avgInvestmentPct = (o.averageInvestment/spendinglimit)*100;
     o.firstDayPrice = firstDayPrice;
     o.lastDayPrice = lastDayPrice;
 
@@ -65,7 +66,7 @@ class Outcome extends React.Component {
           That's it. You will have to take action at most 52 times. If you reach the spending limit you can't do anything until
           you can sell muffins again.
         </p>
-
+        <ConfigDisplay {...config} />
         <hr />
         <BasicOutcome {...o} />
       </div>

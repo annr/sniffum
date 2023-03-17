@@ -5,16 +5,15 @@ import {money, formatPercent} from "./util/MoneyHelpers";
 class BasicOutcome extends React.Component {
   render() {
     const {
-      totalProfits, 
+      totalProfit,
       totalSales,
       unsoldGainsOrLosses,
       scenarioReturn,
       lastDayPrice,
       firstDayPrice,
+      duration,
       averageInvestment,
       avgInvestmentPct,
-      startDate,
-      endDate,
       marketGrowthOfPeriod,
       maximumInvestedAtAnyTime,
       remainingUnsoldMuffins,
@@ -24,8 +23,6 @@ class BasicOutcome extends React.Component {
       maxReturnHypothetical,
     } = this.props;
 
-    const duration = (endDate - startDate)/(1000*60*60*24);
-    // const avgInvestmentPct = Math.round((averageInvestment/spendinglimit)*100) + "%";
     const returnsClassName = scenarioReturn > 0 ? "positive" : "negative";
     const maxReturnsClassName = maxReturnHypothetical > 0 ? "positive" : "negative";
     return (  
@@ -34,7 +31,7 @@ class BasicOutcome extends React.Component {
         <ul>
           <li>
             <em>Profit: </em>
-            <span className={(totalProfits > 0) ? 'profit positive' : 'profit negative'}>{`${money.format(totalProfits)}`}</span>
+            <span className={(totalProfit > 0) ? 'profit positive' : 'profit negative'}>{`${money.format(totalProfit)}`}</span>
           </li>
           <li>
             <em>Sales: </em>
@@ -42,34 +39,26 @@ class BasicOutcome extends React.Component {
           </li>
           <li>
             <em>Unsold muffins gains or losses: </em>
-            {`${money.format(unsoldGainsOrLosses)}`}
+            <span className={(unsoldGainsOrLosses > 0) ? 'positive' : 'negative'}>{`${money.format(unsoldGainsOrLosses)}`}</span>
           </li>
           <li>
-            <em>Scenario start price: </em>
+            <em>Start price: </em>
             {`${money.format(firstDayPrice)} `}
-            <span className="dim">{`(${new Date(startDate).toDateString()})`}</span>
           </li>
           <li>
-            <em>Scenario end price: </em>
+            <em>End price: </em>
             {`${money.format(lastDayPrice)} `}
-            <span className="dim">{`(${new Date(endDate).toDateString()})`}</span>
           </li>
           <li>
-            <em>Start date</em>: {`${new Date(startDate).toDateString()}`}
-          </li>
-          <li>
-            <em>End date:</em> {`${new Date(endDate).toDateString()}`}
-          </li>
-          <li>
-            <em>Length of run:</em> {`${(duration/365).toFixed(2)} years`}
+            <em>Length of run:</em> {`${(duration/365).toFixed(2)} year(s)`}
           </li>
           <li>
             <em>Market growth of scenario period: </em>
-            <span className={(firstDayPrice < lastDayPrice) ? 'positive' : 'negative'}>{`${marketGrowthOfPeriod}`}</span>
+            <span className={(firstDayPrice < lastDayPrice) ? 'positive' : 'negative'}>{`${formatPercent(marketGrowthOfPeriod)}`}</span>
           </li>
           <li>
             <em>Average investment over period: </em>
-            {`${money.format(averageInvestment)} (${avgInvestmentPct})`}
+            {`${money.format(averageInvestment)} (${Math.round(avgInvestmentPct)+"%"})`}
           </li>
           <li>
             <em>Scenario (short-term) gains: </em>
@@ -78,7 +67,7 @@ class BasicOutcome extends React.Component {
           </li>
           <li>
             <em>Maximum invested at any time: </em>
-            {`${maximumInvestedAtAnyTime}`}
+            {`${money.format(maximumInvestedAtAnyTime)}`}
           </li>
           <li>
             <em>Remaining unsold muffins (including cupcakes): </em>
@@ -94,7 +83,7 @@ class BasicOutcome extends React.Component {
           </li>
         </ul>
         <p>Gain or loss of 100% of spendingLimit invested in market as reference:
-        <span className={`${maxReturnsClassName}`}> {`${money.format(maxReturnHypothetical)}`} </span>
+        <span className={`profit ${maxReturnsClassName}`}> {`${money.format(maxReturnHypothetical)}`} </span>
         </p>
         <h2>Trade Days</h2>
         <div>

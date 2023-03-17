@@ -243,15 +243,31 @@ export const getFirstMarketDaysOfWeekOverPeriod = (data, startDate, endDate, tra
   return days;
 };
 
-// we validate startDate and endDate upstream
+// we make sure startDate and endDate are market days upstream
+// we want 53 trade weeks because it'll start as close to the beginning of the year
+//   as possible and end as close to the end as possible. The last week might be a short one
 export const getDaysTradeFrequencyApart = (data, startDate, endDate, tradeFrequency) => {
   const period = (DAY_IN_MS * tradeFrequency);
   let days = [];
   let currentDay = startDate;
   days.push(getValidMarketDay(data, currentDay, 1));
-  while (currentDay + period <= endDate) {
+  while (currentDay + period < endDate) {
     currentDay += period;
     days.push(getValidMarketDay(data, currentDay, 1));
+  }
+  // we already know the last day is valid
+
+  // sometimes mid-year runs with leap years return an extra trade day!!!
+  // if end date is super close to last data day, don't add it
+  // this is a little hacky but it will always work
+  if ((endDate - days[days.length -1]) > DAY_IN_MS * 2) {
+    days.push(endDate);
+  }
+
+  // if range is a year we are expecting 53 trade days.
+  const duration = (endDate - startDate)/(1000*60*60*24);
+  if (days.length != 53 && tradeFrequency == 7 && (duration > 360 && duration < 366)) {
+    console.error(`Expecting 53 trades with tradeFrequency == 7 and one year duration`)
   }
   return days;
 };
