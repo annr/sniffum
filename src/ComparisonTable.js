@@ -21,7 +21,6 @@ class ComparisonTable extends React.Component {
             <th>Avg. invested</th>
             <th>Max invested at any time</th>
             <th>Unsold</th>
-            <th>Num. cupcakes</th>
             <th>Shutout days</th>
           </tr>
         </thead>
@@ -37,7 +36,6 @@ class ComparisonTable extends React.Component {
             <td>Avg. invested</td>
             <td>Max invested at any time</td>
             <td>Unsold</td>
-            <td>Num. cupcakes</td>
             <td>Shutout days</td>
           </tr>
         </tbody>

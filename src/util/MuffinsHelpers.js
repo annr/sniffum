@@ -62,10 +62,14 @@ export const getUnsoldMuffins = (muffins) => {
   return muffins.filter(unsold);
 };
 
-export const getCupcakes = (muffins) => {
-  const cupcakes = (m) => !m.saleDate && m.age > (9 * 30); // hard-coded age for cupcakes
-  return muffins.filter(cupcakes);
+export const getUnsoldMuffinsCount = (muffins) => {
+  return getUnsoldMuffins(muffins).length;
 };
+
+// const getCupcakes = (muffins) => {
+//   const cupcakes = (m) => !m.saleDate && m.age > (9 * 30); // hard-coded age for cupcakes
+//   return muffins.filter(cupcakes);
+// };
 
 export const updateAgeOfMuffins = (day, muffins) => {
   for (var i in muffins) {

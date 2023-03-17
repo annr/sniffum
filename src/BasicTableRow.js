@@ -22,7 +22,7 @@ class BasicTableRow extends React.Component {
     } = this.props;
 
     const returnsClassName = scenarioReturn > 0 ? "positive" : "negative";
-    const shutOutDaysClassName = shutOutDays.length < 20 ? "" : "negative";
+    const shutOutDaysClassName = shutOutDays < 20 ? "" : "negative";
     const maxReturnsClassName = maxReturnHypothetical > 0 ? "dim positive" : "dim negative";
 
     let yearType = <strong>〰️</strong>;
@@ -52,8 +52,8 @@ class BasicTableRow extends React.Component {
       <td><span className={(firstDayPrice < lastDayPrice) ? 'positive' : 'negative'}>{`${formatPercent(marketGrowthOfPeriod)}`}</span> <span className={maxReturnsClassName}>({money.format(maxReturnHypothetical)})</span></td>
       <td>{`${money.format(averageInvestment)} (${Math.round(avgInvestmentPct)+"%"})`}</td>
       <td>{`${money.format(maximumInvestedAtAnyTime)}`}</td>
-      <td className="table-integer">{`${remainingUnsoldMuffins.length}`}</td>
-      <td className="table-integer"><span className={`${shutOutDaysClassName}`}>{`${shutOutDays.length}`} </span></td>
+      <td className="table-integer">{`${remainingUnsoldMuffins}`}</td>
+      <td className="table-integer"><span className={`${shutOutDaysClassName}`}>{`${shutOutDays}`} </span></td>
       <td className="text-center">{yearType}</td>
       <td className="table-integer">{`${outcomeEmoji}`}</td>
     </tr>

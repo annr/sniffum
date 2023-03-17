@@ -37,13 +37,13 @@ class BasicTable extends React.Component {
 
       const outcome = runBasicScenario(dataMap, tradeDaysByYearPeriod, maxMuffins, muffinCost, saleThreshold); // test this.
 
-      // the following vars are more config than outcome. Clean this up.
-      outcome.startDate = yearPeriods[j][0];
-      outcome.endDate = yearPeriods[j][1];
+      const adjustedStart = yearPeriods[j][0];
+      const adjustedEnd = yearPeriods[j][1];
 
+      outcome.duration = (adjustedEnd - adjustedStart)/(1000*60*60*24);
       outcome.avgInvestmentPct = (outcome.averageInvestment/spendinglimit)*100;
-      outcome.firstDayPrice = getPrice(dataMap, yearPeriods[j][0]);
-      outcome.lastDayPrice = getPrice(dataMap, yearPeriods[j][1]);;
+      outcome.firstDayPrice = getPrice(dataMap, adjustedStart);
+      outcome.lastDayPrice = getPrice(dataMap, adjustedEnd);;
 
       const maxStartShares = (spendinglimit/outcome.firstDayPrice);
       const maxWorthOnLastDay = maxStartShares * outcome.lastDayPrice;
@@ -54,7 +54,7 @@ class BasicTable extends React.Component {
       outcomes.push(outcome);
     }
 
-    //const summary = getSumsFromOutcomes(outcomes);
+    const sums = getSumsFromOutcomes(outcomes);
 
     return (
       <div>

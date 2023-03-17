@@ -17,7 +17,6 @@ class BasicOutcome extends React.Component {
       marketGrowthOfPeriod,
       maximumInvestedAtAnyTime,
       remainingUnsoldMuffins,
-      cupcakes,
       shutOutDays,
       events,
       maxReturnHypothetical,
@@ -70,16 +69,12 @@ class BasicOutcome extends React.Component {
             {`${money.format(maximumInvestedAtAnyTime)}`}
           </li>
           <li>
-            <em>Remaining unsold muffins (including cupcakes): </em>
-            {`${remainingUnsoldMuffins.length}`}
-          </li>
-          <li>
-            <em>Number of cupcakes: </em>
-            {`${cupcakes.length}`}
+            <em>Remaining unsold muffins: </em>
+            {`${remainingUnsoldMuffins}`}
           </li>
           <li>
             <em>Shut out of purchases: </em>
-            {`${shutOutDays.length} `}
+            {`${shutOutDays} `}
           </li>
         </ul>
         <p>Gain or loss of 100% of spendingLimit invested in market as reference:
