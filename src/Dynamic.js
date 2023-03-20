@@ -1,5 +1,5 @@
 import React from "react";
-import BasicOutcome from './OutcomeBody';
+import OutcomeBody from './OutcomeBody';
 import ConfigDisplay from './ConfigDisplay';
 
 import {
@@ -14,7 +14,7 @@ import {
 
 const {config} = require('./config');
 
-class Outcome extends React.Component {
+class Dynamic extends React.Component {
 
   render() {
     // this was my first pass: it's sloppy. 
@@ -47,24 +47,16 @@ class Outcome extends React.Component {
 
     return (
       <div>
-        <p>Edit config.js to change any variables</p>
-        <h2>Basic (Coarse) Scenario</h2>
+        <h2>Dynamic Scenario</h2>
         <p>
-          The first scenario I thought to test. I wanted to to see if this coarse, low-effort plan would yield
-          something in a down market, do well in a sideways market, and do okay in an up market.
-        </p>
-        <p>
-          <b>Algorithm:</b> Choose some muffin cost and trading period, and make a limit you can spend on muffins. 
-          Every week at the same time -- I imagined morning but I haven't tested it -- buy a muffin if you haven't
-          reached the limit, and sell ALL muffins that have gained above the threshold in the config -- something like 2%. If you reach the spendingLimit, you can't do anything until
-          you sell.
+          Algorithm TBD
         </p>
         <ConfigDisplay {...config} />
         <hr />
-        <BasicOutcome {...o} />
+        <OutcomeBody {...o} />
       </div>
     );
   }
 }
 
-export default Outcome;
+export default Dynamic;

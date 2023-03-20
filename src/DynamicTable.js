@@ -5,7 +5,7 @@ import TableSummaryDisplay from './TableSummaryDisplay';
 
 import {
   getAveragesFromOutcomes,
-  runBasicScenario
+  runBasicScenario,
 } from './Baker';
 
 import {
@@ -17,7 +17,7 @@ import {
 
 const {config} = require('./config');
 
-class BasicTable extends React.Component {
+class DynamicTable extends React.Component {
 
   render() {
     // this was my first pass: it's sloppy. 
@@ -56,8 +56,11 @@ class BasicTable extends React.Component {
 
     return (
       <div>
-        <h2>Basic (Coarse) Scenario Table</h2>
-        <p><a href="/basic">Basic Scenario</a> run for every year in dataset.</p>
+        <p>Edit config.js to adjust some of the variables.</p>
+        <h2>Dynamic Scenario Table</h2>
+        <p>
+          Similar approach as basic, but it sells smarter and may buy more often to accomplish more trades.
+        </p>
         <ConfigDisplay {...config} />
         <hr />
         <TableSummaryDisplay {...averages} />
@@ -73,7 +76,7 @@ class BasicTable extends React.Component {
               <th>Avg. invested</th>
               <th>Max invested</th>
               <th className="table-integer">Unsold</th>
-              <th className="table-integer">🚫</th>
+              <th className="table-integer">Shutouts</th>
               <th className="text-center">Period type</th>
               <th className="table-integer">🧁</th>
             </tr>
@@ -89,4 +92,4 @@ class BasicTable extends React.Component {
   }
 }
 
-export default BasicTable;
+export default DynamicTable;

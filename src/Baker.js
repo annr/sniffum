@@ -21,16 +21,14 @@ import {
 } from "./util/MuffinsHelpers";
   
  import {
-  getReturn,
   getAverageInvestment,
 } from "./util/MoneyHelpers";
 
-export const getSumsFromOutcomes = (o) => {
+export const getAveragesFromOutcomes = (o) => {
   const sums = o.reduce((prev, curr) => {
     return {
-      scenarioReturn: prev.scenarioReturn + curr.scenarioReturn,
-      averageInvestment: prev.averageInvestment + curr.xaverageInvestmentxxx,
-      avgInvestmentPercent: prev.avgInvestmentPercent + curr.avgInvestmentPercent,
+      averageInvestment: prev.averageInvestment + curr.averageInvestment,
+      avgInvestmentPct: prev.avgInvestmentPct + curr.avgInvestmentPct,
       marketGrowthOfPeriod: prev.marketGrowthOfPeriod + curr.marketGrowthOfPeriod,
       maximumInvestedAtAnyTime: prev.maximumInvestedAtAnyTime + curr.maximumInvestedAtAnyTime,
       remainingUnsoldMuffins: prev.remainingUnsoldMuffins + curr.remainingUnsoldMuffins,
@@ -42,7 +40,7 @@ export const getSumsFromOutcomes = (o) => {
     }
   }, {
     averageInvestment: 0,
-    avgInvestmentPercent: 0,
+    avgInvestmentPct: 0,
     marketGrowthOfPeriod: 0,
     maximumInvestedAtAnyTime: 0,
     remainingUnsoldMuffins: 0,
@@ -53,42 +51,44 @@ export const getSumsFromOutcomes = (o) => {
     unsoldGainsOrLosses: 0,
   })
 
-  // const summary = {
-  //   avgScenarioReturn: 4,
-  //   avgProfit: 5003,
-  //   avgGainsAboveTotalAnnualPercent: 2.03,
-  //   avgGainsDuringGrowth: -3.03,
-  //   avgGainsDuringStagnation: 4.85,
-  //   avgGainsDuringDecline: -3.03,
-  //   avgValueUnsold: 3034,
-  //   avgInvested: 45000,
-  //   avgInvestedPercentOfMax: .440,
-  //   avgSalePriceDifference: 0.00,
-  //   avgDaysShutOut: 3,
-  //   avgTurbulence: "TBD",
-  //   successString: "✅ ✅ ✅ ✅ ✅ ✅",
-  // }
-  return sums;
+  // Note that we don't simply divide total scenarioReturn by outcome length for total average gain
+  // We must use the sum of profits and the sum of invested for some reason that I can't understand right now
+  const avgs = {
+    averageInvestment: sums.averageInvestment/o.length,
+    avgInvestmentPct: sums.avgInvestmentPct/o.length,
+    marketGrowthOfPeriod: sums.marketGrowthOfPeriod/o.length,
+    maximumInvestedAtAnyTime: sums.maximumInvestedAtAnyTime/o.length,
+    remainingUnsoldMuffins: sums.remainingUnsoldMuffins/o.length,
+    scenarioReturn: (sums.totalProfit/sums.averageInvestment)*100,
+    shutOutDays: sums.shutOutDays/o.length,
+    totalProfit: sums.totalProfit/o.length,
+    totalSales: sums.totalSales/o.length,
+    unsoldGainsOrLosses: sums.unsoldGainsOrLosses/o.length,
+  };
+
+  return avgs;
 };
 
-// The basic scenario doesn't do anything dynamic.
-// It just takes an action once a week if it can.
-// It uses open price on that day in any case.
-export const runBasicScenario = (data, days, maxMuffins, muffinCost, saleThreshold, isDynamic = false) => {
+// in this case data has Open price and High price
+export const runBasicScenario = (data, days, maxMuffins, muffinCost, saleThreshold) => {
 
-  let muffins = [];
+  // Approaches to test:
+  //
+  // - make threshold dynamic based on number of unsold muffins and sell with price alerts
+  // - make sales dynamic ""
+  // - buy to replace muffin when selling with price alerts
+  // - would there be any value to dynamic muffinCost? i don't think so; what would that look like?
+  // - is there a benefit to smaller muffins purchased more often? probably in certain markets.
+  //     (maybe experiment with agreesive muffin purchases and sales)
+  // - can moving average be useful?
+  // - Are there ANY pattern in turbulence?
+
   let events = [];
+  let muffins = [];
+
   let profitAccumulator = 0;
   let shutOutDays = [];
-
-  // make an array of amounts invested and then divide by trade events
   let investedAmountByDay = [];
-
-  // dynamicThreshold:
-  //   When dynamically smoothing out the sale threshold, the dynamic base is the number that
-  //   we get to when we want to start clearing muffins. For now, we are using saleThreshold.
-  // 
-
   const o = {};
 
   days.forEach((day,index) => {
@@ -121,6 +121,7 @@ export const runBasicScenario = (data, days, maxMuffins, muffinCost, saleThresho
 
     let unsoldMuffins = getUnsoldMuffins(muffins);
     // if we sold some today, or we have less than maxMuffins unsold, buy.
+
     if(unsoldMuffins.length < maxMuffins) {
       const newMuffin = getNewMuffin(data, day, index+1, muffinCost);
       muffins.push(newMuffin);
@@ -137,7 +138,9 @@ export const runBasicScenario = (data, days, maxMuffins, muffinCost, saleThresho
         ++index,
         newMuffin,
         soldMuffins,
-        getCostUnsoldMuffins(muffins, muffinCost)
+        getCostUnsoldMuffins(muffins, muffinCost),
+        profitAccumulator,
+        getUnsoldMuffinsProfit(getPrice(data, day), unsoldMuffins)
       ));
 
     } else {
@@ -148,7 +151,9 @@ export const runBasicScenario = (data, days, maxMuffins, muffinCost, saleThresho
         ++index,
         null,
         [],
-        getCostUnsoldMuffins(muffins, muffinCost)
+        getCostUnsoldMuffins(muffins, muffinCost),
+        profitAccumulator,
+        getUnsoldMuffinsProfit(getPrice(data, day), unsoldMuffins),
       ));
     }
 
@@ -171,7 +176,7 @@ export const runBasicScenario = (data, days, maxMuffins, muffinCost, saleThresho
   o.averageInvestment = getAverageInvestment(investedAmountByDay);
   o.remainingUnsoldMuffins = getUnsoldMuffinsCount(muffins); // maybe indicate if these are in the red and by how much.
 
-  o.scenarioReturn = getReturn(o.totalProfit, averageInvestment);
+  o.scenarioReturn = (o.totalProfit/averageInvestment)*100;
   o.maximumInvestedAtAnyTime = Math.max(...investedAmountByDay);
   o.shutOutDays = shutOutDays.length;
   o.muffins = muffins;

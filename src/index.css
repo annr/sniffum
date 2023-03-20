@@ -21,7 +21,7 @@ ul li {
 }
 
 .positive, .new {
-  color: green;
+  color: darkgreen;
 }
 
 .positive-bright, .new {
@@ -56,7 +56,7 @@ h1 a {
   width:100%;
 }
 
-.outcome-table thead{
+.outcome-table thead {
   background-color: papayawhip;
 }
 
@@ -92,11 +92,23 @@ ul.config-list li {
   color: olive;
 }
 
+.summary-box {
+  width: 100%;
+  height: 160px;
+}
+
 ul.summary-list {
+  width: 33%;
   list-style-type: none;
-  margin: 0;
+  margin: 0 0 15px;
   padding: 0;
   overflow: hidden;
   float: left;
   padding-right: 100px;
+}
+
+.sold-muffins {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
 }

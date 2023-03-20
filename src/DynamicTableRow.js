@@ -12,8 +12,8 @@ class BasicTableRow extends React.Component {
       firstDayPrice,
       averageInvestment,
       avgInvestmentPct,
-      startDate,
-      endDate,
+      adjustedStart,
+      adjustedEnd,
       marketGrowthOfPeriod,
       maximumInvestedAtAnyTime,
       remainingUnsoldMuffins,
@@ -44,11 +44,11 @@ class BasicTableRow extends React.Component {
     // console.log(`run ${scenarioReturn} market ${marketGrowthOfPeriod} difference ${scenarioReturn - marketGrowthOfPeriod}`)
     return (  
     <tr>
-      <td>{`${new Date(startDate).toDateString()} - ${new Date(endDate).toDateString()}`}</td>
+      <td>{`${new Date(adjustedStart).toDateString()} - ${new Date(adjustedEnd).toDateString()}`}</td>
       <td><span className={(totalProfit > 0) ? 'profit positive' : 'profit negative'}>{`${money.format(totalProfit)}`}</span></td>
       <td>{`${money.format(totalSales)}`}</td>
       <td>{<span className={(unsoldGainsOrLosses > 0) ? 'positive' : 'negative'}>{`${money.format(unsoldGainsOrLosses)}`}</span>}</td>
-      <td className="muffins-return"><span className={`${returnsClassName}`}>{`${formatPercent(scenarioReturn)}`} </span></td>
+      <td className="muffins-return profit"><span className={`${returnsClassName}`}>{`${formatPercent(scenarioReturn)}`} </span></td>
       <td><span className={(firstDayPrice < lastDayPrice) ? 'positive' : 'negative'}>{`${formatPercent(marketGrowthOfPeriod)}`}</span> <span className={maxReturnsClassName}>({money.format(maxReturnHypothetical)})</span></td>
       <td>{`${money.format(averageInvestment)} (${Math.round(avgInvestmentPct)+"%"})`}</td>
       <td>{`${money.format(maximumInvestedAtAnyTime)}`}</td>

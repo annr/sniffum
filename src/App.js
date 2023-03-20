@@ -2,7 +2,9 @@ import { Route, Routes, Link } from "react-router-dom";
 import { Home } from "./Home";
 //import Table from "./Table";
 import Main from "./Main";
-import BasicTableWrapper from "./BasicTableWrapper";
+import DynamicWrapper from "./DynamicWrapper";
+import TableWrapper from "./BasicTableWrapper";
+import DynamicTableWrapper from "./DynamicTableWrapper";
 //import Comparison from "./Comparison";
 
 function App() {
@@ -10,11 +12,12 @@ function App() {
     <>
     <header>
       <nav>
-        <Link to="/">Muffins home</Link> | &nbsp;
-        <Link to="/basic">Basic Scenario</Link> | &nbsp;
-        <Link to="/basic-table">Basic Scenario Table</Link> | &nbsp;
-        {/* <Link to="/compare">Comparing approaches</Link> | &nbsp;
-        <Link to="/table">Exploration table TBD</Link>  | &nbsp;
+        <Link to="/">Muffins home</Link> &nbsp; -
+        Basic: <Link to="/basic">Scenario</Link> &nbsp;
+        <Link to="/basic-table">Table</Link> &nbsp; -
+        Dynamic: <Link to="/dynamic">Scenario</Link> &nbsp;
+        <Link to="/dynamic-table">Table</Link>
+        {/* <Link to="/table">Exploration table TBD</Link>  | &nbsp;
         <Link to="/table">Long term muffins</Link> */}
       </nav>
     </header>
@@ -22,7 +25,9 @@ function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/basic" element={<Main />} />
-      <Route path="/basic-table" element={<BasicTableWrapper />} />
+      <Route path="/basic-table" element={<TableWrapper />} />
+      <Route path="/dynamic" element={<DynamicWrapper />} />
+      <Route path="/dynamic-table" element={<DynamicTableWrapper />} />
       {/* <Route path="/compare" element={<Comparison />} />
       <Route path="/table" element={<Table />} /> */}
     </Routes>

@@ -20,7 +20,7 @@ export const getNewMuffin = (data, day, index, muffinCost) => {
   };
 };
 
-export const getNewEvent = (data, day, index, newMuffin, soldMuffins, costUnsoldMuffins) => {
+export const getNewEvent = (data, day, index, newMuffin, soldMuffins, costUnsoldMuffins, totalSalesAtDate, unsoldMuffinValueChange) => {
   // Event day is unique identifier. This is fine for now.
   return {
     'eventId': index,
@@ -29,6 +29,8 @@ export const getNewEvent = (data, day, index, newMuffin, soldMuffins, costUnsold
     'purchasedMuffin': newMuffin,
     'soldMuffins': soldMuffins,
     'costUnsoldMuffins': costUnsoldMuffins,
+    'totalSalesAtDate': totalSalesAtDate,
+    'unsoldMuffinValueChange': unsoldMuffinValueChange,
   };
 };
 

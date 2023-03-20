@@ -6,23 +6,43 @@ class TableConfigDisplay extends React.Component {
     return (
       <div>
         <ul className="summary-list">
-          <li><span className="label">Avg % gains over market:</span> {formatPercent(this.props.avgGainsPercent)}</li>
-          <li><span className="label">Avg gains:</span> {money.format(this.props.avgProfit)}</li>
-          <li><span className="label">Avg profits:</span> {formatPercent(this.props.avgGainsAboveTotalAnnualPercent)}</li>
-          <li><span className="label"> <span className='positive'>↗</span> During growth:</span> {formatPercent(this.props.avgGainsDuringGrowth)}</li>
-          <li><span className="label"> <strong>〰️</strong> During stagnation:</span> {formatPercent(this.props.avgGainsDuringStagnation)}</li>
-          <li><span className="label"> <span className='negative'>↘</span> During decline:</span> {formatPercent(this.props.avgGainsDuringDecline)}</li>
-        </ul>
-        <ul className="summary-list">
-          <li><span className="label">Avg unsold gains or losses:</span> {money.format(this.props.avgValueUnsold)}</li>
           <li>
-            <span className="label">Avg of average invested (% of max): </span> 
-            {money.format(this.props.avgInvested)} ({formatPercent(this.props.avgInvestedPercentOfMax)})
+            <span className="label">Avg gains: </span>
+            <span className={(this.props.scenarioReturn > 0) ? 'profit positive' : 'profit negative'}>{formatPercent(this.props.scenarioReturn)}</span>
           </li>
-          <li><span className="label">Avg days shut out:</span> {this.props.avgDaysShutOut}</li>
-          <li><span className="label">Avg sale percent gain:</span> {formatPercent(this.props.avgSalePriceDifference*100)}</li>
-          <li><span className="label">Avg turbulence:</span> {this.props.avgTurbulence}</li>
-          <li><span className="label">Success:</span> <span className="dim">{this.props.successString}</span></li>
+          <li>
+            <span className="label">Avg market growth: </span>
+            <span className={(this.props.marketGrowthOfPeriod > 0) ? 'positive' : 'negative'}>{formatPercent(this.props.marketGrowthOfPeriod)}</span>
+          </li>
+          <li>
+            <span className="label">Avg profits: </span>
+            <span className="profit">{money.format(this.props.totalProfit)}</span>
+          </li>
+          <li><span className="label">Avg sales:</span> {formatPercent(this.props.totalSales)}</li>
+          <li><span className="label">Avg unsold gains or losses: </span> 
+          <span className={(this.props.unsoldGainsOrLosses > 0) ? 'positive' : 'negative'}>{money.format(this.props.unsoldGainsOrLosses)}</span>
+          </li>
+          </ul>
+          <ul className="summary-list">
+
+          <li><span className="label"> <span className='positive'>↗ </span> During growth <span className="dim"> (mkt &gt; 3%)</span>:</span> TBD</li>
+          <li><span className="label">
+            <strong>〰️ </strong> 
+            During stagnation
+            <span className="dim"> (mkt &gt; -3%, mkt &lt; 3%):</span></span> TBD</li>
+          <li>
+            <span className="label"> <span className='negative'>↘ </span>
+            During decline <span className="dim"> (mkt &lt; -3%)</span>:</span>  TBD</li>
+          </ul>
+        <ul className="summary-list">
+          <li>
+            <span className="label">Avg invested at any time (% of max): </span> 
+            {money.format(this.props.averageInvestment)} ({formatPercent(this.props.avgInvestmentPct)})
+          </li>
+          <li><span className="label">Avg unsold muffins:</span> {this.props.remainingUnsoldMuffins.toFixed(2)}</li>
+          <li><span className="label">Avg days shut out:</span> {this.props.shutOutDays.toFixed(2)}</li>
+          <li><span className="label">Avg sale percent over:</span> TBD</li>
+          <li><span className="label">Avg turbulence:</span> TBD</li>
         </ul>
       </div>
     );
