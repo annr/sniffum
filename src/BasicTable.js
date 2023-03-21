@@ -9,7 +9,7 @@ import {
 } from './Baker';
 
 import {
-  getOpenPriceMap,
+  getPriceMap,
   getPrice,
   getTradeDays,
   getYearPeriodSets,
@@ -25,23 +25,23 @@ class BasicTable extends React.Component {
     const maxMuffins = Math.floor(spendinglimit/muffinCost);
 
     // Use data converted to maps for quick lookups
-    const dataMap = getOpenPriceMap(items);
+    const data = getPriceMap(items);
 
-    const yearPeriods = getYearPeriodSets(dataMap, false);
+    const yearPeriods = getYearPeriodSets(data, false);
 
     let outcomes = [];
 
     for(let j=0; j < yearPeriods.length; j++) {
-      const tradeDaysByYearPeriod = getTradeDays(dataMap, yearPeriods[j][0], yearPeriods[j][1], tradeFrequency, false);
+      const tradeDaysByYearPeriod = getTradeDays(data, yearPeriods[j][0], yearPeriods[j][1], tradeFrequency, false);
 
-      const outcome = runBasicScenario(dataMap, tradeDaysByYearPeriod, maxMuffins, muffinCost, saleThreshold); // test this.
+      const outcome = runBasicScenario(data, tradeDaysByYearPeriod, maxMuffins, muffinCost, saleThreshold); // test this.
 
       outcome.adjustedStart = yearPeriods[j][0];
       outcome.adjustedEnd = yearPeriods[j][1];
       outcome.duration = (outcome.adjustedEnd - outcome.adjustedStart)/(1000*60*60*24);
       outcome.avgInvestmentPct = (outcome.averageInvestment/spendinglimit)*100;
-      outcome.firstDayPrice = getPrice(dataMap, outcome.adjustedStart);
-      outcome.lastDayPrice = getPrice(dataMap, outcome.adjustedEnd);;
+      outcome.firstDayPrice = getPrice(data, outcome.adjustedStart);
+      outcome.lastDayPrice = getPrice(data, outcome.adjustedEnd);;
 
       const maxStartShares = (spendinglimit/outcome.firstDayPrice);
       const maxWorthOnLastDay = maxStartShares * outcome.lastDayPrice;

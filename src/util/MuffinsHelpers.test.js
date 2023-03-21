@@ -3,12 +3,12 @@ import {
 } from "./MuffinsHelpers";
 
 import {
-  getOpenPriceMap,
+  getPriceMap,
   getPrice,
 } from "./DataHelpers";
 
 import {items} from './StaticTestData';
-const data = getOpenPriceMap(items);
+const data = getPriceMap(items);
 
 const index = 0;
 const muffinCost = 5000;

@@ -1,30 +1,17 @@
 const DAY_IN_MS = 60 * 60 * 24 * 1000;
 
+// This will return open by default
 export const getPrice = (data, day) => {
-    return data.get(new Date(day).toDateString());
+    return getOpenPrice(data, day);
 };
-  
-// pluck Open price for now.
-export const getOpenPriceMap = (items) => {
-  // make the more complex imported data into a simple map for lookups.
-  const convertedMap = new Map();
-  items.forEach(element => {
-    const key = element.Date;
-    convertedMap.set(key, element.Open);
-  });
-  return convertedMap;
-}
 
-export const getHighPriceMap = (items) => {
-  // make the more complex imported data into a simple map for lookups.
-  const convertedMap = new Map();
+export const getOpenPrice = (data, day) => {
+  return data.get(new Date(day).toDateString()).open;
+};
 
-  items.forEach(element => {
-    const key = element.Date;
-    convertedMap.set(key, element.High);
-  });
-  return convertedMap;
-}
+export const getHighPrice = (data, day) => {
+  return data.get(new Date(day).toDateString()).high;
+};
 
 export const getPriceMap = (items) => {
   // make the more complex imported data into a simple map for lookups.
@@ -34,7 +21,8 @@ export const getPriceMap = (items) => {
     const key = element.Date;
     convertedMap.set(key, {
       open: element.Open,
-      high: element.High
+      high: element.High,
+      low: element.Low,
     });
   });
   return convertedMap;
@@ -49,7 +37,7 @@ export const massageData = (items) => {
     // get the date as a standard string.
     // for some reson dates in this format 2022-02-18 get saved as teh day before.
     // add one day to these to move
-    const dateObj = new Date(element.Date)
+    const dateObj = new Date(element.Date);
     const key = new Date(dateObj.getTime() + DAY_IN_MS).toDateString();
 
     const price = element.High;
@@ -69,13 +57,13 @@ export const massageData = (items) => {
 }
 
 // Returns tradeDays
-export const getTradeDays = (dataMap, startDate, endDate, tradeFrequency, tradeAtStartOfWeekFlag) => {
+export const getTradeDays = (data, startDate, endDate, tradeFrequency, tradeAtStartOfWeekFlag) => {
   // Reality check to start
-  checkValidityOfDates(dataMap, startDate, endDate);
+  checkValidityOfDates(data, startDate, endDate);
 
   // tradeFrequency from adjustedStart may not fall on selected endDate
-  let adjustedStart = getValidMarketDay(dataMap, startDate, 1);
-  let closestValidRangeEnd = getValidMarketDay(dataMap, endDate, -1);
+  let adjustedStart = getValidMarketDay(data, startDate, 1);
+  let closestValidRangeEnd = getValidMarketDay(data, endDate, -1);
 
   // Date variables are generally passed around as timestamps not Date objects
   if (tradeAtStartOfWeekFlag) { // override with start of market week
@@ -83,12 +71,12 @@ export const getTradeDays = (dataMap, startDate, endDate, tradeFrequency, tradeA
     if (tradeFrequency % 7 !== 0) {
       throw new Error(`tradeFrequency must be a multiple of 7 in order to use tradeAtStartOfWeekFlag.`);
     }
-    adjustedStart = adjustDayToWeekBeginning(dataMap, startDate);
+    adjustedStart = adjustDayToWeekBeginning(data, startDate);
   }
 
   // If tradeAtStartOfWeekFlag=true then most trade days will be Mondays, some Tuesdays.
 
-  return getDaysTradeFrequencyApart(dataMap, adjustedStart, closestValidRangeEnd, tradeFrequency);
+  return getDaysTradeFrequencyApart(data, adjustedStart, closestValidRangeEnd, tradeFrequency);
 };
 
 export const getFirstDataDay = (data) => {

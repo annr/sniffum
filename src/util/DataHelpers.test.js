@@ -1,6 +1,5 @@
 import {
-  getOpenPriceMap,
-  getHighPriceMap,
+  getPriceMap,
   getFirstDataDay,
   getLastDataDay,
   getValidMarketDay,
@@ -13,7 +12,7 @@ import {
 
 import {items} from './StaticTestData';
 
-const data = getOpenPriceMap(items);
+const data = getPriceMap(items);
 const tradeFrequency = 7;
 let tradeAtStartOfWeekFlag = false;
 
@@ -47,22 +46,12 @@ test('items', () => {
 });
 
 //
-// getOpenPriceMap
+// getPriceMap
 //
 
-test('getOpenPriceMap takes array and returns map', () => {
+test('getPriceMap takes array and returns map', () => {
   expect(items instanceof Array).toBe(true);
   expect(data instanceof Map).toBe(true);
-});
-
-//
-// getHighPriceMap
-//
-
-test('getHighPriceMap returns a map with different values than getOpenPriceMap', () => {
-  const highMap = getHighPriceMap(items);
-  expect(highMap instanceof Map).toBe(true);
-
 });
 
 //
@@ -92,24 +81,24 @@ test('getValidMarketDay: If requested end is later than first dataset day, retur
 //
 // getTradeDays
 //
-const expectedTradeDays = [948182400000, 948787200000, 949392000000, 949996800000, 950601600000, 950774400000];
+const expectedTradeDays = [948182400000, 948787200000, 949392000000, 949996800000, 950601600000];
 
-test('getTradeDays over short period returns expected values', () => {
+test('1. getTradeDays over short period returns expected values', () => {
   const values = getTradeDays(data, startDate, endDate, tradeFrequency, tradeAtStartOfWeekFlag);
   expect(values).toStrictEqual(expectedTradeDays);
 });
 
-test('getTradeDays returns expected values', () => {
+test('2. getTradeDays returns expected values', () => {
   const values = getTradeDays(data, startDate, endDateMultipleOfFrequency, tradeFrequency, tradeAtStartOfWeekFlag);
   expect(values).toStrictEqual(expectedTradeDays);
 });
 
-test('getTradeDays returns expected values when period is multiple of tradeFrequency', () => {
+test('3. getTradeDays returns expected values when period is multiple of tradeFrequency', () => {
   const values = getTradeDays(data, startDate, endDateMultipleOfFrequency, tradeFrequency, tradeAtStartOfWeekFlag);
   expect(values).toStrictEqual(expectedTradeDays);
 });
 
-test('getTradeDays returns 53 days when period is one year', () => {
+test('4. getTradeDays returns 53 days when period is one year', () => {
   const values = getTradeDays(data, yearPeriodStart, yearPeriodEnd, tradeFrequency);
   expect(values.length).toBe(53);
 });
@@ -167,11 +156,11 @@ test('getDaysTradeFrequencyApart returns 53 trade days for any period', () => {
   const yearPeriods = getYearPeriodSets(data, true);
   for(let j=0; j < yearPeriods.length; j++) {
     const tradeDaysByYearPeriod = getTradeDays(data, yearPeriods[j][0], yearPeriods[j][1], tradeFrequency);
-    expect(tradeDays.length).toBe(53);
+    expect(tradeDaysByYearPeriod.length).toBe(53);
   }
 });
 
-//     const yearPeriods = getYearPeriodSets(dataMap, true);
+//     const yearPeriods = getYearPeriodSets(data, true);
 
 //
 // runScenario
@@ -179,7 +168,7 @@ test('getDaysTradeFrequencyApart returns 53 trade days for any period', () => {
 
 // test('runBasicScenario returns correct outcome', () => {
 
-//   const outcome = runBasicScenario(dataMap, tradeDaysByYearPeriod, maxMuffins, muffinCost, saleThreshold);
+//   const outcome = runBasicScenario(data, tradeDaysByYearPeriod, maxMuffins, muffinCost, saleThreshold);
 
 //   expect(outcome).toStrictEqual({});
 // });

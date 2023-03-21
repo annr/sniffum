@@ -7,7 +7,7 @@ import {
 } from './Baker';
 
 import {
-  getOpenPriceMap,
+  getPriceMap,
   getPrice,
   getTradeDays,
 } from "./util/DataHelpers";
@@ -22,18 +22,18 @@ class Outcome extends React.Component {
     const maxMuffins = Math.floor(spendinglimit/muffinCost);
 
     // Use data converted to maps for quick lookups
-    const dataMap = getOpenPriceMap(items);
+    const data = getPriceMap(items);
 
-    const tradeDays = getTradeDays(dataMap, startDate, endDate, tradeFrequency, tradeAtStartOfWeekFlag);
+    const tradeDays = getTradeDays(data, startDate, endDate, tradeFrequency, tradeAtStartOfWeekFlag);
 
     const adjustedStart = tradeDays[0];
     const adjustedEnd = tradeDays[tradeDays.length - 1];
 
-    const firstDayPrice = getPrice(dataMap, adjustedStart);
-    const lastDayPrice = getPrice(dataMap, adjustedEnd);
+    const firstDayPrice = getPrice(data, adjustedStart);
+    const lastDayPrice = getPrice(data, adjustedEnd);
 
     // outcome
-    const o = runBasicScenario(dataMap, tradeDays, maxMuffins, muffinCost, saleThreshold); // test this.
+    const o = runBasicScenario(data, tradeDays, maxMuffins, muffinCost, saleThreshold); // test this.
 
     o.duration = (adjustedEnd - adjustedStart)/(1000*60*60*24);
     o.firstDayPrice = firstDayPrice;
