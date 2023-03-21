@@ -30,7 +30,7 @@ class RunRow extends React.Component {
     return (
       <tr>
         <td>{eventId}</td>
-        <td>{new Date(date).toDateString()}</td>            
+        <td>{new Date(date).toDateString()}</td>
         <td>{(purchasedMuffin) ? '🧁': '🚫'} @ {price}</td>
         <td>{money.format(costUnsoldMuffins)}</td>
         <td><ul className='sold-muffins'>{(sold) ? sold : <li>-</li>}</ul></td>

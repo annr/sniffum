@@ -20,7 +20,6 @@ const {config} = require('./config');
 class BasicTable extends React.Component {
 
   render() {
-    // this was my first pass: it's sloppy. 
     const items = this.props.data;
     const {tradeFrequency, spendinglimit, muffinCost, saleThreshold} = {...config};
     const maxMuffins = Math.floor(spendinglimit/muffinCost);

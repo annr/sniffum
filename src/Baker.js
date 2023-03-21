@@ -6,6 +6,17 @@ import {
     getPrice,
 } from './util/DataHelpers';
 
+  // "Dynamic" approaches to explore:
+  //
+  // - make threshold dynamic based on number of unsold muffins and sell with price alerts
+  // - make sales dynamic ""
+  // - buy to replace muffin when selling with price alerts
+  // - would there be any value to dynamic muffinCost? i don't think so; what would that look like?
+  // - is there a benefit to smaller muffins purchased more often? probably in certain markets.
+  //     (maybe experiment with agreesive muffin purchases and sales)
+  // - can moving average be useful?
+  // - Are there ANY pattern in turbulence?
+
 import {
     getIndicesOfMuffinsToBeSold,
     getProfit,
@@ -49,7 +60,7 @@ export const getAveragesFromOutcomes = (o) => {
     totalProfit: 0,
     totalSales: 0,
     unsoldGainsOrLosses: 0,
-  })
+  });
 
   // Note that we don't simply divide total scenarioReturn by outcome length for total average gain
   // We must use the sum of profits and the sum of invested for some reason that I can't understand right now
@@ -69,19 +80,7 @@ export const getAveragesFromOutcomes = (o) => {
   return avgs;
 };
 
-// in this case data has Open price and High price
 export const runBasicScenario = (data, days, maxMuffins, muffinCost, saleThreshold) => {
-
-  // Approaches to test:
-  //
-  // - make threshold dynamic based on number of unsold muffins and sell with price alerts
-  // - make sales dynamic ""
-  // - buy to replace muffin when selling with price alerts
-  // - would there be any value to dynamic muffinCost? i don't think so; what would that look like?
-  // - is there a benefit to smaller muffins purchased more often? probably in certain markets.
-  //     (maybe experiment with agreesive muffin purchases and sales)
-  // - can moving average be useful?
-  // - Are there ANY pattern in turbulence?
 
   let events = [];
   let muffins = [];
@@ -94,7 +93,7 @@ export const runBasicScenario = (data, days, maxMuffins, muffinCost, saleThresho
   days.forEach((day,index) => {
     // As we buy muffins and go through time, we need to check
     //   if we can sell any muffins. We sell muffins first,
-    //   because it will determine if we can by a muffin on this day.
+    //   because it will determine if we can buy a muffin on this day.
 
     // const dynamicThreshold = getDynamicThreshold(saleThreshold, muffins.length, maxMuffins);
 

@@ -17,7 +17,6 @@ const {config} = require('./config');
 class Outcome extends React.Component {
 
   render() {
-    // this was my first pass: it's sloppy. 
     const items = this.props.data;
     const {startDate, endDate, tradeFrequency, spendinglimit, muffinCost, saleThreshold, tradeAtStartOfWeekFlag} = {...config};
     const maxMuffins = Math.floor(spendinglimit/muffinCost);
@@ -40,6 +39,8 @@ class Outcome extends React.Component {
     o.firstDayPrice = firstDayPrice;
     o.lastDayPrice = lastDayPrice;
 
+    o.avgInvestmentPct = (o.averageInvestment/spendinglimit)*100;
+
     const maxStartShares = (spendinglimit/firstDayPrice);
     const maxWorthOnLastDay = maxStartShares * lastDayPrice;
     const maxReturnHypothetical = maxWorthOnLastDay - spendinglimit;
@@ -54,7 +55,7 @@ class Outcome extends React.Component {
           something in a down market, do well in a sideways market, and do okay in an up market.
         </p>
         <p>
-          <b>Algorithm:</b> Choose some muffin cost and trading period, and make a limit you can spend on muffins. 
+          <b>Algorithm:</b> Choose some muffin cost and trading period, and make a limit you can spend on muffins.
           Every week at the same time -- I imagined morning but I haven't tested it -- buy a muffin if you haven't
           reached the limit, and sell ALL muffins that have gained above the threshold in the config -- something like 2%. If you reach the spendingLimit, you can't do anything until
           you sell.

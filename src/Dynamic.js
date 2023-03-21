@@ -17,7 +17,6 @@ const {config} = require('./config');
 class Dynamic extends React.Component {
 
   render() {
-    // this was my first pass: it's sloppy. 
     const items = this.props.data;
     const {startDate, endDate, tradeFrequency, spendinglimit, muffinCost, saleThreshold, tradeAtStartOfWeekFlag} = {...config};
     const maxMuffins = Math.floor(spendinglimit/muffinCost);
@@ -39,6 +38,8 @@ class Dynamic extends React.Component {
     o.duration = (adjustedEnd - adjustedStart)/(1000*60*60*24);
     o.firstDayPrice = firstDayPrice;
     o.lastDayPrice = lastDayPrice;
+
+    o.avgInvestmentPct = (o.averageInvestment/spendinglimit)*100;
 
     const maxStartShares = (spendinglimit/firstDayPrice);
     const maxWorthOnLastDay = maxStartShares * lastDayPrice;

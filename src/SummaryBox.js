@@ -19,7 +19,6 @@ class SummaryBox extends React.Component {
     maximumInvestedAtAnyTime,
     remainingUnsoldMuffins,
     shutOutDays,
-    events,
     maxReturnHypothetical,
   } = this.props;
 

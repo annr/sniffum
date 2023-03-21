@@ -20,7 +20,6 @@ const {config} = require('./config');
 class DynamicTable extends React.Component {
 
   render() {
-    // this was my first pass: it's sloppy. 
     const items = this.props.data;
     const {tradeFrequency, spendinglimit, muffinCost, saleThreshold} = {...config};
     const maxMuffins = Math.floor(spendinglimit/muffinCost);

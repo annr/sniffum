@@ -32,7 +32,7 @@ class BasicTableRow extends React.Component {
     if(marketGrowthOfPeriod < -3) {
       yearType = <span className='negative'>↘</span>;
     }
-  
+
     let outcomeEmoji = "🥱";
     const runVsMarket = scenarioReturn - marketGrowthOfPeriod;
     if(runVsMarket > 2) {
@@ -42,7 +42,7 @@ class BasicTableRow extends React.Component {
       outcomeEmoji = "⛔️";
     }
     // console.log(`run ${scenarioReturn} market ${marketGrowthOfPeriod} difference ${scenarioReturn - marketGrowthOfPeriod}`)
-    return (  
+    return (
     <tr>
       <td>{`${new Date(adjustedStart).toDateString()} - ${new Date(adjustedEnd).toDateString()}`}</td>
       <td><span className={(totalProfit > 0) ? 'profit positive' : 'profit negative'}>{`${money.format(totalProfit)}`}</span></td>

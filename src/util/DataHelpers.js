@@ -26,6 +26,20 @@ export const getHighPriceMap = (items) => {
   return convertedMap;
 }
 
+export const getPriceMap = (items) => {
+  // make the more complex imported data into a simple map for lookups.
+  const convertedMap = new Map();
+
+  items.forEach(element => {
+    const key = element.Date;
+    convertedMap.set(key, {
+      open: element.Open,
+      high: element.High
+    });
+  });
+  return convertedMap;
+}
+
 export const massageData = (items) => {
   // the data has several prices per day. we just need "High"
 
@@ -139,7 +153,7 @@ export const adjustDayToWeekBeginning = (data, day) => {
   let adjustedDay = day;
 
   // passed dates have been adjusted to be in dataset. If it is a Monday, return
-  if (new Date(day).getDay() == 1) {
+  if (new Date(day).getDay() === 1) {
     return day;
   }
 
@@ -147,7 +161,7 @@ export const adjustDayToWeekBeginning = (data, day) => {
   // 0: Sunday
   // 1: Monday
   // 2: Tuesday ..etc.
-  const mondayOffset = new Date(adjustedDay).getDay() == 0 ? DAY_IN_MS : (-(new Date(adjustedDay).getDay() - 8) * DAY_IN_MS);
+  const mondayOffset = new Date(adjustedDay).getDay() === 0 ? DAY_IN_MS : (-(new Date(adjustedDay).getDay() - 8) * DAY_IN_MS);
   adjustedDay = day + mondayOffset;
 
   // if THAT Monday is not in dataset, try the next day, Tuesday
@@ -266,8 +280,8 @@ export const getDaysTradeFrequencyApart = (data, startDate, endDate, tradeFreque
 
   // if range is a year we are expecting 53 trade days.
   const duration = (endDate - startDate)/(1000*60*60*24);
-  if (days.length != 53 && tradeFrequency == 7 && (duration > 360 && duration < 366)) {
-    console.error(`Expecting 53 trades with tradeFrequency == 7 and one year duration`)
+  if (days.length !== 53 && tradeFrequency === 7 && (duration > 360 && duration < 366)) {
+    console.error(`Expecting 53 trades with tradeFrequency === 7 and one year duration`)
   }
   return days;
 };
