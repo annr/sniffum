@@ -1,9 +1,8 @@
-// Can't access getPrice() from this file's functions in dev tools. Caused by the fact
-// parcel "bundles" and the variables are not known to the document scope,
-// but the scope of the particular bundle. (Annoying for how I do dev)
 import {
   getPrice
 } from './DataHelpers';
+
+const DAY_IN_MS = 60 * 60 * 24 * 1000;
 
 export const getNewMuffin = (data, day, index, muffinCost) => {
   // Event day is unique identifier. This is fine for now.
@@ -41,7 +40,7 @@ const canSellMuffin = (data, day, muffin, thresholdBasedOnNumberOfMuffins) => {
   return priceChangePercent > thresholdBasedOnNumberOfMuffins;
 };
 
-export const getIndicesOfMuffinsToBeSold = (data, day, muffins, saleThreshold) => {
+export const getIndicesOfMuffinsToBeSold = (data, day, muffins, saleThreshold, dynamicSaleThreshold) => {
   // loop through muffins to see if any sale thresholds are met for any muffins.
   // and count total unsold muffin value
   let saleIndexes = []
@@ -101,6 +100,18 @@ export const getUnsoldMuffinsProfit = (currentPrice, muffins) => {
     }
   }
   return profit;
+};
+
+// Returns muffin that have been "baking" for some minimum amount of time
+// I am not sure if this will ever be useful. I'll have to make sure dynamic
+//   threshold do not always beat this.
+
+// export const getOlderThan = (muffins, minAge) => {
+//   return muffins;
+// };
+
+export const getMuffinAgeInDays = (day, muffin) => {
+  return (new Date(day) - new Date(muffin.purchaseDate))/(60 * 60 * 24 * 1000);
 };
 
 export const getCostUnsoldMuffins = (muffins, muffinCost) => {

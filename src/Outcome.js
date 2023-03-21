@@ -18,7 +18,7 @@ class Outcome extends React.Component {
 
   render() {
     const items = this.props.data;
-    const {startDate, endDate, tradeFrequency, spendinglimit, muffinCost, saleThreshold, tradeAtStartOfWeekFlag} = {...config};
+    const {startDate, endDate, tradeFrequency, spendinglimit, muffinCost, saleThreshold, tradeAtStartOfWeekFlag, saleTiers} = {...config};
     const maxMuffins = Math.floor(spendinglimit/muffinCost);
 
     // Use data converted to maps for quick lookups
@@ -33,7 +33,7 @@ class Outcome extends React.Component {
     const lastDayPrice = getPrice(data, adjustedEnd);
 
     // outcome
-    const o = runBasicScenario(data, tradeDays, maxMuffins, muffinCost, saleThreshold); // test this.
+    const o = runBasicScenario(data, tradeDays, maxMuffins, muffinCost, saleThreshold, saleTiers); // test this.
 
     o.duration = (adjustedEnd - adjustedStart)/(1000*60*60*24);
     o.firstDayPrice = firstDayPrice;

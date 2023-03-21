@@ -10,6 +10,7 @@ class TableConfigDisplay extends React.Component {
         <li><span className="label">muffinCost:</span> {`${this.props.muffinCost}`}</li>
         <li><span className="label">saleThreshold:</span> {`${this.props.saleThreshold}`}</li>
         <li><span className="label">tradeAtStartOfWeekFlag:</span> {`${this.props.tradeAtStartOfWeekFlag}`}</li>
+        <li><span className="label">growthMarketDefinition:</span> {`${(this.props.growthMarketDefinition*100).toFixed(1)}`}</li>
       </ul>
     );
   }

@@ -6,6 +6,10 @@ import {
     getPrice,
 } from './util/DataHelpers';
 
+import {
+  getMarketType,
+} from './util/LogicHelpers';
+
   // "Dynamic" approaches to explore:
   //
   // - make threshold dynamic based on number of unsold muffins and sell with price alerts
@@ -29,11 +33,14 @@ import {
     updateGainOfMuffins,
     getUnsoldMuffinsProfit,
     getPriceChangePercent,
+    getIndicesOfMuffinsToBeSoldWithTiers,
 } from "./util/MuffinsHelpers";
   
  import {
   getAverageInvestment,
 } from "./util/MoneyHelpers";
+
+const {config} = require('./config');
 
 export const getAveragesFromOutcomes = (o) => {
   const sums = o.reduce((prev, curr) => {
@@ -61,6 +68,8 @@ export const getAveragesFromOutcomes = (o) => {
     totalSales: 0,
     unsoldGainsOrLosses: 0,
   });
+
+  const marketTypes = getMarketTypesFromOutcomes(o);
 
   // Note that we don't simply divide total scenarioReturn by outcome length for total average gain
   // We must use the sum of profits and the sum of invested for some reason that I can't understand right now
@@ -97,7 +106,15 @@ export const runBasicScenario = (data, days, maxMuffins, muffinCost, saleThresho
 
     // const dynamicThreshold = getDynamicThreshold(saleThreshold, muffins.length, maxMuffins);
 
-    const saleIndexes = getIndicesOfMuffinsToBeSold(data, day, muffins, saleThreshold);
+    let dynamicSaleThreshold = saleTiers.regular;
+    if (muffins.length > 10) {
+      dynamicSaleThreshold = saleTiers.discount;
+    }
+    if (muffins.length < 6) {
+      dynamicSaleThreshold = saleTiers.premium;
+    }
+
+    const saleIndexes = getIndicesOfMuffinsToBeSold(data, day, muffins, defaultSaleThreshold, dynamicSaleThreshold);
 
     // console.log(`Is dynamic: ${isDynamic} and sale indices: ${saleIndexes} and muffins ${muffins.length} length`);
 

@@ -19,6 +19,20 @@
 //  Example. muffinsLength = 13, we will multiply base threhold by 0.95 to reduce it a bit.  
 //
 
+const {config} = require('../config');
+
+export const getMarketType = (gains) => {
+    // returns "growth" | "stagnation" | "decline"
+    switch (true) {
+      case (gains < -(config.growthMarketDefinition*100)):
+        return "growth";
+      case (gains >= config.growthMarketDefinition*100):
+        return "decline";
+      default:
+        return "stagnation";
+    }
+};
+
 export const getDynamicThreshold = (threshold, muffinsLength, maxMuffins) => {
 
   // muffinsLength: 1, Threshold: 6.4

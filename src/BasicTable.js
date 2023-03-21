@@ -21,7 +21,7 @@ class BasicTable extends React.Component {
 
   render() {
     const items = this.props.data;
-    const {tradeFrequency, spendinglimit, muffinCost, saleThreshold} = {...config};
+    const {tradeFrequency, spendinglimit, muffinCost, saleThreshold, saleTiers} = {...config};
     const maxMuffins = Math.floor(spendinglimit/muffinCost);
 
     // Use data converted to maps for quick lookups
@@ -34,7 +34,7 @@ class BasicTable extends React.Component {
     for(let j=0; j < yearPeriods.length; j++) {
       const tradeDaysByYearPeriod = getTradeDays(data, yearPeriods[j][0], yearPeriods[j][1], tradeFrequency, false);
 
-      const outcome = runBasicScenario(data, tradeDaysByYearPeriod, maxMuffins, muffinCost, saleThreshold); // test this.
+      const outcome = runBasicScenario(data, tradeDaysByYearPeriod, maxMuffins, muffinCost, saleThreshold, saleTiers); // test this.
 
       outcome.adjustedStart = yearPeriods[j][0];
       outcome.adjustedEnd = yearPeriods[j][1];
