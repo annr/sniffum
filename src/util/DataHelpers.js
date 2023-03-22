@@ -6,11 +6,15 @@ export const getPrice = (data, day) => {
 };
 
 export const getOpenPrice = (data, day) => {
-  return data.get(new Date(day).toDateString()).open;
+  return getDayPositions(data, day).open;
+};
+
+export const getDayPositions = (data, day) => {
+  return data.get(new Date(day).toDateString());
 };
 
 export const getHighPrice = (data, day) => {
-  return data.get(new Date(day).toDateString()).high;
+  return getDayPositions(data, day).high;
 };
 
 export const getPriceMap = (items) => {
@@ -26,6 +30,15 @@ export const getPriceMap = (items) => {
     });
   });
   return convertedMap;
+}
+
+export const getDatesWithIndices = (items) => {
+  // make the more complex imported data into a simple map for lookups.
+  let datesOnly = [];
+  items.forEach(element => {
+    datesOnly.push(element.Date)
+  });
+  return datesOnly;
 }
 
 export const massageData = (items) => {
@@ -88,6 +101,15 @@ export const getLastDataDay = (data) => {
   // Data is a map, and remains ordered, but the dataset MUST BE IN ASC ORDER
   return new Date(Array.from(data.keys()).pop());
 };
+
+// I feel like this might be error prone
+export const getRangeOfMarketDays = (datesArray, from, to) => {
+  // Returns on array of all valid market days bewteen passed dates
+  // Since the items are ordered (???) maybe we can take a slice????
+  const start = datesArray.indexOf(new Date(from).toDateString());
+  const end = datesArray.indexOf(new Date(to).toDateString());
+  return datesArray.slice(start, end+1);
+}
 
 export const getValidMarketDay = (data, from, directionSwtich) => {
   // We assume startDate will use directionSwtich "1" and endDate will use "-1"

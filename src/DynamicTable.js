@@ -5,7 +5,7 @@ import TableSummaryDisplay from './TableSummaryDisplay';
 
 import {
   getAveragesFromOutcomes,
-  runBasicScenario,
+  runDynamicScenario,
 } from './Baker';
 
 import {
@@ -13,6 +13,7 @@ import {
   getPrice,
   getTradeDays,
   getYearPeriodSets,
+  getDatesWithIndices,
 } from "./util/DataHelpers";
 
 const {config} = require('./config');
@@ -34,11 +35,13 @@ class DynamicTable extends React.Component {
     for(let j=0; j < yearPeriods.length; j++) {
       const tradeDaysByYearPeriod = getTradeDays(data, yearPeriods[j][0], yearPeriods[j][1], tradeFrequency, false);
 
-      const outcome = runBasicScenario(data, tradeDaysByYearPeriod, maxMuffins, muffinCost, saleThreshold); // test this.
+      // outcome
+      const outcome = runDynamicScenario(getDatesWithIndices(items), data, tradeDaysByYearPeriod, maxMuffins, muffinCost, saleThreshold); // test this.
 
       outcome.adjustedStart = yearPeriods[j][0];
       outcome.adjustedEnd = yearPeriods[j][1];
       outcome.duration = (outcome.adjustedEnd - outcome.adjustedStart)/(1000*60*60*24);
+
       outcome.avgInvestmentPct = (outcome.averageInvestment/spendinglimit)*100;
       outcome.firstDayPrice = getPrice(data, outcome.adjustedStart);
       outcome.lastDayPrice = getPrice(data, outcome.adjustedEnd);;
@@ -55,7 +58,6 @@ class DynamicTable extends React.Component {
 
     return (
       <div>
-        <p>Edit config.js to adjust some of the variables.</p>
         <h2>Dynamic Scenario Table</h2>
         <p>
           Similar approach as basic, but it sells smarter and may buy more often to accomplish more trades.
@@ -75,7 +77,7 @@ class DynamicTable extends React.Component {
               <th>Avg. invested</th>
               <th>Max invested</th>
               <th className="table-integer">Unsold</th>
-              <th className="table-integer">Shutouts</th>
+              <th className="table-integer">🚫</th>
               <th className="text-center">Period type</th>
               <th className="table-integer">🧁</th>
             </tr>

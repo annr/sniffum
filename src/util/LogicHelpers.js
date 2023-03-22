@@ -21,17 +21,36 @@
 
 const {config} = require('../config');
 
-export const getMarketType = (gains) => {
+export const getPriceChangePercent = (x, y) => {
+  return (y-x)/x;
+}
+
+export const getMarketTypeSwitch = (gains) => {
     // returns "growth" | "stagnation" | "decline"
     switch (true) {
       case (gains < -(config.growthMarketDefinition*100)):
-        return "growth";
-      case (gains >= config.growthMarketDefinition*100):
         return "decline";
+      case (gains >= config.growthMarketDefinition*100):
+        return "growth";
       default:
         return "stagnation";
     }
 };
+
+export const getDynamicSaleThreshold = (muffinsLength) => {
+  let dt = config.saleTiers.regular;
+  if (muffinsLength > 10) {
+    dt = config.saleTiers.discount;
+  }
+  if (muffinsLength <= 2) {
+    dt = config.saleTiers.hold;
+  }
+  if (muffinsLength < 6) {
+    dt = config.saleTiers.premium;
+  }
+  return dt;
+};
+
 
 export const getDynamicThreshold = (threshold, muffinsLength, maxMuffins) => {
 

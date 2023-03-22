@@ -107,7 +107,7 @@ ul.summary-list {
   padding-right: 100px;
 }
 
-.sold-muffins {
+.muffins-list {
   list-style-type: none;
   margin: 0;
   padding: 0;
@@ -115,4 +115,9 @@ ul.summary-list {
 
 .count {
   color: black;
+}
+
+.fixed-width {
+  font-family: "Courier New", Courier;
+  font-size: smaller;
 }

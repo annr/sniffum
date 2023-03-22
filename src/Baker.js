@@ -1,13 +1,17 @@
-import {
-    getDynamicThreshold,
-} from './util/LogicHelpers';
+// import {
+//     getDynamicThreshold,
+// } from './util/LogicHelpers';
 
 import {
     getPrice,
+    getRangeOfMarketDays,
+    getDayPositions,
 } from './util/DataHelpers';
 
 import {
-  getMarketType,
+  getMarketTypeSwitch,
+  getDynamicSaleThreshold,
+  getPriceChangePercent,
 } from './util/LogicHelpers';
 
   // "Dynamic" approaches to explore:
@@ -32,15 +36,15 @@ import {
     updateAgeOfMuffins,
     updateGainOfMuffins,
     getUnsoldMuffinsProfit,
-    getPriceChangePercent,
-    getIndicesOfMuffinsToBeSoldWithTiers,
+    getIndicesOfMuffinsAtThreshold,
+    getSalePriceEstimate,
+
 } from "./util/MuffinsHelpers";
   
- import {
+import {
   getAverageInvestment,
+  getAverageInvestmentFromEvents,
 } from "./util/MoneyHelpers";
-
-const {config} = require('./config');
 
 export const getAveragesFromOutcomes = (o) => {
   const sums = o.reduce((prev, curr) => {
@@ -84,12 +88,65 @@ export const getAveragesFromOutcomes = (o) => {
     totalProfit: sums.totalProfit/o.length,
     totalSales: sums.totalSales/o.length,
     unsoldGainsOrLosses: sums.unsoldGainsOrLosses/o.length,
+    marketTypes,
   };
 
   return avgs;
 };
 
-export const runBasicScenario = (data, days, maxMuffins, muffinCost, saleThreshold) => {
+// CLEAN THIS UP!!!
+const getMarketTypesFromOutcomes = (o) => {
+  // add additional sum values. Not elegnat.
+  let sumGrowthPeriods = 0;
+  let growthPeriodsCount = 0;
+  let sumRunGrowthPeriods = 0;
+
+  let sumStagnationPeriods = 0;
+  let stagnationPeriodsCount = 0;
+  let sumRunStagnationPeriods = 0;
+
+  let sumDeclinePeriods = 0;
+  let declinePeriodsCount = 0;
+  let sumRunDeclinePeriods = 0;
+
+  for (let i = 0; i < o.length; i++) {
+
+    switch (getMarketTypeSwitch(o[i].marketGrowthOfPeriod)) {
+      case ('decline'):
+        sumDeclinePeriods += o[i].marketGrowthOfPeriod;
+        sumRunDeclinePeriods += o[i].scenarioReturn;
+        declinePeriodsCount++;
+        break;
+      case ('growth'):
+        sumGrowthPeriods += o[i].marketGrowthOfPeriod;
+        sumRunGrowthPeriods += o[i].scenarioReturn;
+        growthPeriodsCount++;
+        break;
+      case ('stagnation'):
+        sumStagnationPeriods += o[i].marketGrowthOfPeriod;
+        sumRunStagnationPeriods += o[i].scenarioReturn;
+        stagnationPeriodsCount++;
+        break;
+      default:
+        console.error('No valid market type');
+    }
+  }
+
+  return {
+    growthGains: growthPeriodsCount ? (sumGrowthPeriods/growthPeriodsCount) : null,
+    growthPeriodsCount,
+    runGrowthGains: growthPeriodsCount ? (sumRunGrowthPeriods/growthPeriodsCount) : null,
+    stagnationGains: stagnationPeriodsCount ? (sumStagnationPeriods/stagnationPeriodsCount) : null,
+    stagnationPeriodsCount,
+    runStagnationGains: stagnationPeriodsCount ? (sumRunStagnationPeriods/stagnationPeriodsCount) : null,
+    declineGains: declinePeriodsCount ? (sumDeclinePeriods/declinePeriodsCount) : null,
+    declinePeriodsCount,
+    runDeclineGains: declinePeriodsCount ? (sumRunDeclinePeriods/declinePeriodsCount) : null,
+  };
+
+};
+
+export const runBasicScenario = (data, days, maxMuffins, muffinCost, defaultSaleThreshold, saleTiers) => {
 
   let events = [];
   let muffins = [];
@@ -100,77 +157,155 @@ export const runBasicScenario = (data, days, maxMuffins, muffinCost, saleThresho
   const o = {};
 
   days.forEach((day,index) => {
+
+    let muffinsBought = [];
+    let muffinsSold = [];
     // As we buy muffins and go through time, we need to check
     //   if we can sell any muffins. We sell muffins first,
     //   because it will determine if we can buy a muffin on this day.
 
     // const dynamicThreshold = getDynamicThreshold(saleThreshold, muffins.length, maxMuffins);
 
-    let dynamicSaleThreshold = saleTiers.regular;
-    if (muffins.length > 10) {
-      dynamicSaleThreshold = saleTiers.discount;
-    }
-    if (muffins.length < 6) {
-      dynamicSaleThreshold = saleTiers.premium;
-    }
+    let dynamicSaleThreshold = getDynamicSaleThreshold(muffins.length);
+    // console.log(`Is dynamic: ${isDynamic} and sale indices: ${saleIndexes} and muffins ${muffins.length} length`);
 
     const saleIndexes = getIndicesOfMuffinsToBeSold(data, day, muffins, defaultSaleThreshold, dynamicSaleThreshold);
 
-    // console.log(`Is dynamic: ${isDynamic} and sale indices: ${saleIndexes} and muffins ${muffins.length} length`);
-
     // Sell all muffins that have gained saleThreshold
-    if (muffins.length && saleIndexes.length) {
-      // Update one muffin with sale date and price
-
+    if (saleIndexes.length) {
       for (let j = 0; j < saleIndexes.length; j++) {
         muffins[saleIndexes[j]].saleDate = new Date(day).toDateString();
-
         muffins[saleIndexes[j]].salePrice = getPrice(data, day);
         // console.log(`Selling at ${getPrice(highPriceMap, day)} (high price) vs ${getPrice(data, day)} (open price)`)
         const profit = getProfit(muffinCost, getPriceChangePercent(muffins[saleIndexes[j]].purchasePrice, getPrice(data, day)));
         muffins[saleIndexes[j]].profit = profit;
         profitAccumulator += profit;
+        muffinsSold.push(muffins[saleIndexes[j]]);
       }
-
-      //(`Sold ${saleIndexes.length} muffin(s) on ${new Date(day).toDateString()}`)
     }
 
     let unsoldMuffins = getUnsoldMuffins(muffins);
     // if we sold some today, or we have less than maxMuffins unsold, buy.
 
     if(unsoldMuffins.length < maxMuffins) {
+      // For this version of muffins, each of the days is a possible muffin purchase day
+
       const newMuffin = getNewMuffin(data, day, index+1, muffinCost);
+      muffinsBought.push(newMuffin);
       muffins.push(newMuffin);
-
-      const soldMuffins = [];
-      saleIndexes.forEach((sale) => {
-        soldMuffins.push(muffins[sale]);
-      });
-
-      // now there is one more that is unsold
-      events.push(getNewEvent(
-        data,
-        day,
-        ++index,
-        newMuffin,
-        soldMuffins,
-        getCostUnsoldMuffins(muffins, muffinCost),
-        profitAccumulator,
-        getUnsoldMuffinsProfit(getPrice(data, day), unsoldMuffins)
-      ));
 
     } else {
       shutOutDays.push(day);
-      events.push(getNewEvent(
-        data,
-        day,
-        ++index,
-        null,
-        [],
-        getCostUnsoldMuffins(muffins, muffinCost),
-        profitAccumulator,
-        getUnsoldMuffinsProfit(getPrice(data, day), unsoldMuffins),
-      ));
+    }
+
+    events.push(getNewEvent(
+      day,
+      getPrice(data, day),
+      ++index,
+      muffinsBought,
+      muffinsSold,
+      getCostUnsoldMuffins(muffins, muffinCost),
+      profitAccumulator,
+      getUnsoldMuffinsProfit(getPrice(data, day), unsoldMuffins),
+      getDayPositions(data, day),
+      true,
+    ));
+
+    // update ages of UNSOLD muffins
+    // currently this would not need to be in the loop
+    // muffins = updateAgeOfMuffins(day, muffins);
+
+    // replace muffins with updated records
+    muffins = updateGainOfMuffins(data, day, muffins);
+    investedAmountByDay.push(getCostUnsoldMuffins(muffins, muffinCost));
+
+  });
+
+  const firstDayPrice = getPrice(data, days[0]);
+  const lastDayPrice = getPrice(data, days[days.length - 1]);
+
+  o.unsoldGainsOrLosses = getUnsoldMuffinsProfit(lastDayPrice, muffins);
+  o.totalSales = profitAccumulator;
+  o.totalProfit = profitAccumulator + o.unsoldGainsOrLosses;
+
+  o.marketGrowthOfPeriod = getPriceChangePercent(firstDayPrice, lastDayPrice)*100;
+
+  o.averageInvestment = getAverageInvestment(investedAmountByDay);
+  o.remainingUnsoldMuffins = getUnsoldMuffinsCount(muffins); // maybe indicate if these are in the red and by how much.
+
+  o.scenarioReturn = (o.totalProfit/o.averageInvestment)*100;
+  o.maximumInvestedAtAnyTime = Math.max(...investedAmountByDay);
+  o.shutOutDays = shutOutDays.length;
+  o.muffins = muffins;
+  o.events = events;
+  return o;
+};
+
+
+export const runDynamicScenario = (items, data, potentialPurchaseDays, maxMuffins, muffinCost, defaultSaleThreshold, saleTiers) => {
+
+  let events = [];
+  let muffins = [];
+  let profitAccumulator = 0;
+  let muffinsSoldCountTotal = 0;
+  let shutOutDays = [];
+  let investedAmountByDay = [];
+  const o = {};
+
+  // get all market days between potentialPurchaseDays
+  const days = getRangeOfMarketDays(items, potentialPurchaseDays[0], potentialPurchaseDays[potentialPurchaseDays.length-1]);
+
+  days.forEach((day,index) => {
+    // first of all, if it's a potentialPurchaseDays and you can buy a muffin, do so
+
+    let muffinsSoldDay = [];
+    let muffinsBoughtDay = [];
+    let unsoldMuffins = []; // all of the unsold
+
+    const isOpenMarketDay = potentialPurchaseDays.includes(Date.parse(day));
+
+    let dynamicSaleThreshold = getDynamicSaleThreshold(muffins.length);
+    const threshold = dynamicSaleThreshold;
+
+    // See if, on this day, defaultSaleThreshold is met for any muffins and then sell for defaultSaleThreshold (not high price)
+    const saleIndexes = getIndicesOfMuffinsAtThreshold(data, day, muffins, threshold);
+
+    // console.log(`Is dynamic: ${isDynamic} and sale indices: ${saleIndexes} and muffins ${muffins.length} length`);
+
+    // Sell all muffins that have gained saleThreshold
+    if (saleIndexes.length) {
+      // Update one muffin with sale date and price
+      for (let j = 0; j < saleIndexes.length; j++) {
+        muffins[saleIndexes[j]].saleDate = new Date(day).toDateString();
+        muffins[saleIndexes[j]].salePrice = getSalePriceEstimate(muffins[saleIndexes[j]].purchasePrice, threshold);
+
+        // the profit it always going to be the same when selling at threshold!!!
+        const profit = getProfit(muffinCost, getPriceChangePercent(muffins[saleIndexes[j]].purchasePrice, muffins[saleIndexes[j]].salePrice));
+        muffins[saleIndexes[j]].profit = profit;
+
+        muffinsSoldDay.push(muffins[saleIndexes[j]]);
+        profitAccumulator += profit;
+        muffinsSoldCountTotal++;
+
+
+        if (getUnsoldMuffinsCount(muffins) < maxMuffins-3) {
+          let newMuffin = getNewMuffin(data, day, muffins.length+1, muffinCost);
+          muffinsBoughtDay.push(newMuffin);
+          muffins.push(newMuffin);
+        }
+      }
+      // replace sold muffins unless we need to throttle sales
+    }
+
+
+    if (getUnsoldMuffinsCount(muffins) < maxMuffins) {
+      if (isOpenMarketDay) {
+        let newMuffin = getNewMuffin(data, day, muffins.length+1, muffinCost);
+        muffinsBoughtDay.push(newMuffin);
+        muffins.push(newMuffin);
+      }
+    } else {
+      shutOutDays.push(day);
     }
 
     // update ages of UNSOLD muffins
@@ -179,23 +314,41 @@ export const runBasicScenario = (data, days, maxMuffins, muffinCost, saleThresho
     muffins = updateGainOfMuffins(data, day, muffins);
 
     investedAmountByDay.push(getCostUnsoldMuffins(muffins, muffinCost));
+
+    // every day will have an "event" even if nothing happened that day
+    events.push(getNewEvent(
+      day,
+      getPrice(data, day),
+      ++index,
+      muffinsBoughtDay,
+      muffinsSoldDay,
+      getCostUnsoldMuffins(muffins, muffinCost),
+      profitAccumulator,
+      getUnsoldMuffinsProfit(getPrice(data, day), muffins),
+      getDayPositions(data, day),
+      isOpenMarketDay,
+    ));
+
   });
 
-  const averageInvestment = getAverageInvestment(investedAmountByDay); //as number
   const firstDayPrice = getPrice(data, days[0]);
   const lastDayPrice = getPrice(data, days[days.length - 1]);
 
   o.unsoldGainsOrLosses = getUnsoldMuffinsProfit(lastDayPrice, muffins);
+
   o.totalSales = profitAccumulator;
   o.totalProfit = profitAccumulator + o.unsoldGainsOrLosses;
   o.marketGrowthOfPeriod = getPriceChangePercent(firstDayPrice, lastDayPrice)*100;
-  o.averageInvestment = getAverageInvestment(investedAmountByDay);
+  o.averageInvestment = events.length && getAverageInvestmentFromEvents(events);
   o.remainingUnsoldMuffins = getUnsoldMuffinsCount(muffins); // maybe indicate if these are in the red and by how much.
 
-  o.scenarioReturn = (o.totalProfit/averageInvestment)*100;
+  o.scenarioReturn = (o.totalProfit/o.averageInvestment)*100;
   o.maximumInvestedAtAnyTime = Math.max(...investedAmountByDay);
   o.shutOutDays = shutOutDays.length;
   o.muffins = muffins;
   o.events = events;
+
+  console.log("MUFFINS SOLD TOTAL: " + muffinsSoldCountTotal)
   return o;
-}
+
+};

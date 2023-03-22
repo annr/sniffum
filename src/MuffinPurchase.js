@@ -5,11 +5,11 @@ import {money} from "./util/MoneyHelpers";
 
 class MuffinPurchase extends React.Component {
   render() {
-    return (this.props.id) ? (
-        <span> 🧁 #{`${this.props.id}`} </span>
-    ) : (
-        <span>🚫 Limit Reached.</span>
-    );
+    return (
+    <li className="">
+    (👩‍🍳) 🧁 #{`${this.props.id} @ ${money.format(this.props.purchasePrice)}`}
+    </li>
+    )
   }
 }
 

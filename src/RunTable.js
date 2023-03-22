@@ -11,9 +11,9 @@ class RunTable extends React.Component {
           <tr>
             <th>#</th>
             <th>Date</th>            
-            <th>Purchase? @ price</th>
+            <th>open - high</th>
+            <th>In and Out</th>
             <th>Invested</th>
-            <th>Sale</th>
             <th className="table-integer">Unsold gain/loss</th>
             <th className="table-integer">Sales</th>
             <th className="table-integer">Total</th>

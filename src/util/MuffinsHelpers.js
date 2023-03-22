@@ -1,6 +1,11 @@
 import {
-  getPrice
+  getPrice,
+  getHighPrice,
 } from './DataHelpers';
+
+import {
+  getPriceChangePercent,
+} from './LogicHelpers';
 
 const DAY_IN_MS = 60 * 60 * 24 * 1000;
 
@@ -19,17 +24,19 @@ export const getNewMuffin = (data, day, index, muffinCost) => {
   };
 };
 
-export const getNewEvent = (data, day, index, newMuffin, soldMuffins, costUnsoldMuffins, totalSalesAtDate, unsoldMuffinValueChange) => {
+export const getNewEvent = (day, price, index, muffinsBought, muffinsSold, costUnsoldMuffins, totalSalesAtDate, unsoldMuffinsValueChange, dayPositions, openMarketDay = false) => {
   // Event day is unique identifier. This is fine for now.
   return {
     'eventId': index,
     'date': day,
-    'price': getPrice(data, day),
-    'purchasedMuffin': newMuffin,
-    'soldMuffins': soldMuffins,
-    'costUnsoldMuffins': costUnsoldMuffins,
-    'totalSalesAtDate': totalSalesAtDate,
-    'unsoldMuffinValueChange': unsoldMuffinValueChange,
+    price,
+    muffinsBought,
+    muffinsSold,
+    costUnsoldMuffins,
+    totalSalesAtDate,
+    unsoldMuffinsValueChange,
+    dayPositions, // for display in table only. this is sloppy.
+    isOpenMarketDay: openMarketDay,
   };
 };
 
@@ -43,12 +50,36 @@ const canSellMuffin = (data, day, muffin, thresholdBasedOnNumberOfMuffins) => {
 export const getIndicesOfMuffinsToBeSold = (data, day, muffins, saleThreshold, dynamicSaleThreshold) => {
   // loop through muffins to see if any sale thresholds are met for any muffins.
   // and count total unsold muffin value
+
+  // to test the difference between static saleThreshold and dynamicSaleThreshold (based on number of muffins)
+  // change the variable below**
   let saleIndexes = []
 
   for (let i = 0; i < muffins.length; i++) {
     if (muffins[i].profit == null) {
       const priceChangePercent = getPriceChangePercent(muffins[i].purchasePrice, getPrice(data, day));
-      if (priceChangePercent > saleThreshold) {
+      if (priceChangePercent > dynamicSaleThreshold) { // ** change the threshold to test
+        // yay! we can sell.
+          saleIndexes.push(i);
+          muffins[i].saleGain = priceChangePercent;
+      }
+    }
+  }
+  return saleIndexes;
+}
+
+export const getIndicesOfMuffinsAtThreshold = (data, day, muffins, saleThreshold) => {
+  // loop through muffins to see if any sale thresholds are met for any muffins.
+  // and count total unsold muffin value
+
+  // to test the difference between static saleThreshold and dynamicSaleThreshold (based on number of muffins)
+  // change the variable below**
+  let saleIndexes = []
+
+  for (let i = 0; i < muffins.length; i++) {
+    if (muffins[i].profit == null) {
+      const priceChangePercent = getPriceChangePercent(muffins[i].purchasePrice, getHighPrice(data, day));
+      if (priceChangePercent > saleThreshold) { // ** change the threshold to test
         // yay! we can sell.
           saleIndexes.push(i);
           muffins[i].saleGain = priceChangePercent;
@@ -122,6 +153,11 @@ const getAgeInDays = (day, muffin) => {
   return (new Date(day) - new Date(muffin.purchaseDate))/(1000*60*60*24);
 };
 
+export const getSalePriceEstimate = (price, gain) => {
+  // Since price is moving, it won't be this exactly.
+  return price + (price * gain);
+};
+
 const getPercentValueToday = (currentPrice, muffin) => {
   return getPriceChangePercent(muffin.purchasePrice, currentPrice);
 };
@@ -132,8 +168,4 @@ const getDollarValueToday = (currentPrice, muffin) => {
 
 export const getProfit = (muffinCost, percentChange) => {
   return (muffinCost * percentChange);
-}
-
-export const getPriceChangePercent = (x, y) => {
-  return (y-x)/x;
 }

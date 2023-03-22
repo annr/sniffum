@@ -3,13 +3,14 @@ import OutcomeBody from './OutcomeBody';
 import ConfigDisplay from './ConfigDisplay';
 
 import {
-  runBasicScenario
+  runDynamicScenario
 } from './Baker';
 
 import {
   getPriceMap,
   getPrice,
   getTradeDays,
+  getDatesWithIndices,
 } from "./util/DataHelpers";
 
 const {config} = require('./config');
@@ -24,16 +25,16 @@ class Dynamic extends React.Component {
     // Use data converted to maps for quick lookups
     const data = getPriceMap(items);
 
-    const tradeDays = getTradeDays(data, startDate, endDate, tradeFrequency, tradeAtStartOfWeekFlag);
+    const potentialPurchaseDays = getTradeDays(data, startDate, endDate, tradeFrequency, tradeAtStartOfWeekFlag);
 
-    const adjustedStart = tradeDays[0];
-    const adjustedEnd = tradeDays[tradeDays.length - 1];
+    const adjustedStart = potentialPurchaseDays[0];
+    const adjustedEnd = potentialPurchaseDays[potentialPurchaseDays.length - 1];
 
     const firstDayPrice = getPrice(data, adjustedStart);
     const lastDayPrice = getPrice(data, adjustedEnd);
 
     // outcome
-    const o = runBasicScenario(data, tradeDays, maxMuffins, muffinCost, saleThreshold); // test this.
+    const o = runDynamicScenario(getDatesWithIndices(items), data, potentialPurchaseDays, maxMuffins, muffinCost, saleThreshold); // test this.
 
     o.duration = (adjustedEnd - adjustedStart)/(1000*60*60*24);
     o.firstDayPrice = firstDayPrice;

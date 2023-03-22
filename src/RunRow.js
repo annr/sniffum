@@ -1,5 +1,6 @@
 import React from "react";
 import MuffinSale from './MuffinSale';
+import MuffinPurchase from './MuffinPurchase';
 import {money} from "./util/MoneyHelpers";
 
 class RunRow extends React.Component {
@@ -7,34 +8,45 @@ class RunRow extends React.Component {
   render() {
 
     const {
-      date,
       eventId,
-      price,
-      purchasedMuffin,
+      date,
+      muffinsBought,
+      muffinsSold,
       costUnsoldMuffins,
-      soldMuffins,
       totalSalesAtDate,
-      unsoldMuffinValueChange,
+      unsoldMuffinsValueChange,
+      dayPositions,
+      isOpenMarketDay,
     } = this.props;
 
-    const sold = soldMuffins.map((muffin, index) =>
+    const bought = muffinsBought.map((muffin, index) =>
+      <MuffinPurchase {...muffin} key={index} />
+    );
+    const sold = muffinsSold.map((muffin, index) =>
       <MuffinSale {...muffin} key={index} />
     );
 
-    // lazy!!! abstract this:
-    const totalProfit = totalSalesAtDate + unsoldMuffinValueChange;
-    const unsoldValueStyle = (unsoldMuffinValueChange > 0) ? "positive" : "negative";
+    // lazy!!! abstract such stuff
+    const totalProfit = totalSalesAtDate + unsoldMuffinsValueChange;
+    const unsoldValueStyle = (unsoldMuffinsValueChange > 0) ? "positive" : "negative";
     const salesStyle = (totalSalesAtDate > 0) ? "positive" : "negative";
     const totalProfitStyle = (totalProfit > 0) ? "positive" : "negative";
 
     return (
       <tr>
-        <td>{eventId}</td>
+        <td>{eventId}{isOpenMarketDay ? '**' : ''}</td>
         <td>{new Date(date).toDateString()}</td>
-        <td>{(purchasedMuffin) ? '🧁': '🚫'} @ {price}</td>
+        <td className="fixed-width">{money.format(dayPositions.open)} - {money.format(dayPositions.high)}</td>
+        <td>
+          <ul className='muffins-list'>
+            {(bought) ? bought : <li>-</li>}
+          </ul>
+          <ul className='muffins-list'>
+            {(sold) ? sold : <li>-</li>}
+          </ul>
+        </td>
         <td>{money.format(costUnsoldMuffins)}</td>
-        <td><ul className='sold-muffins'>{(sold) ? sold : <li>-</li>}</ul></td>
-        <td className="table-integer"><span className={unsoldValueStyle}>{(unsoldMuffinValueChange) ? money.format(unsoldMuffinValueChange) : ""}</span></td>
+        <td className="table-integer"><span className={unsoldValueStyle}>{(unsoldMuffinsValueChange) ? money.format(unsoldMuffinsValueChange) : ""}</span></td>
         <td className="table-integer"><span className={salesStyle}>{(totalSalesAtDate) ? money.format(totalSalesAtDate) : ""}</span></td>
         <td className="table-integer"><span className={totalProfitStyle}>{(totalProfit) ? money.format(totalProfit) : ""}</span></td>
       </tr>
