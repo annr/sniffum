@@ -6,6 +6,7 @@ import {
     getPrice,
     getRangeOfMarketDays,
     getDayPositions,
+    isPotentialPurchaseDay,
 } from './util/DataHelpers';
 
 import {
@@ -150,8 +151,8 @@ export const runBasicScenario = (data, days, maxMuffins, muffinCost, defaultSale
 
   let events = [];
   let muffins = [];
-
   let profitAccumulator = 0;
+  let muffinsSoldCountTotal = 0;
   let shutOutDays = [];
   let investedAmountByDay = [];
   const o = {};
@@ -180,6 +181,7 @@ export const runBasicScenario = (data, days, maxMuffins, muffinCost, defaultSale
         const profit = getProfit(muffinCost, getPriceChangePercent(muffins[saleIndexes[j]].purchasePrice, getPrice(data, day)));
         muffins[saleIndexes[j]].profit = profit;
         profitAccumulator += profit;
+        muffinsSoldCountTotal++;
         muffinsSold.push(muffins[saleIndexes[j]]);
       }
     }
@@ -237,6 +239,7 @@ export const runBasicScenario = (data, days, maxMuffins, muffinCost, defaultSale
   o.maximumInvestedAtAnyTime = Math.max(...investedAmountByDay);
   o.shutOutDays = shutOutDays.length;
   o.muffins = muffins;
+  o.muffinsSoldCountTotal = muffinsSoldCountTotal;
   o.events = events;
   return o;
 };
@@ -262,9 +265,9 @@ export const runDynamicScenario = (items, data, potentialPurchaseDays, maxMuffin
     let muffinsBoughtDay = [];
     let unsoldMuffins = []; // all of the unsold
 
-    const isOpenMarketDay = potentialPurchaseDays.includes(Date.parse(day));
+    const isOpenMarketDay = isPotentialPurchaseDay(potentialPurchaseDays, day);
 
-    let dynamicSaleThreshold = getDynamicSaleThreshold(muffins.length);
+    let dynamicSaleThreshold = getDynamicSaleThreshold(getUnsoldMuffinsCount(muffins));
     const threshold = dynamicSaleThreshold;
 
     // See if, on this day, defaultSaleThreshold is met for any muffins and then sell for defaultSaleThreshold (not high price)
@@ -286,17 +289,20 @@ export const runDynamicScenario = (items, data, potentialPurchaseDays, maxMuffin
         muffinsSoldDay.push(muffins[saleIndexes[j]]);
         profitAccumulator += profit;
         muffinsSoldCountTotal++;
-
-
-        if (getUnsoldMuffinsCount(muffins) < maxMuffins-3) {
-          let newMuffin = getNewMuffin(data, day, muffins.length+1, muffinCost);
-          muffinsBoughtDay.push(newMuffin);
-          muffins.push(newMuffin);
-        }
       }
-      // replace sold muffins unless we need to throttle sales
-    }
+      // generally replace half as many sold muffins after x in oven
+      console.log(`replacing ${ Math.ceil(saleIndexes.length/2)} muffins (sold: ${saleIndexes.length})`);
 
+      // only re-purchase when not very close to the limit:
+      // let portionOfSales = Math.ceil(saleIndexes.length/2);
+      // if (getUnsoldMuffinsCount(muffins) < maxMuffins-3) {
+      //   for (let k = 0; k < portionOfSales; k++) {
+      //     let newMuffin = getNewMuffin(data, day, muffins.length+1, muffinCost);
+      //     muffinsBoughtDay.push(newMuffin);
+      //     muffins.push(newMuffin);
+      //   }
+      // }
+    }
 
     if (getUnsoldMuffinsCount(muffins) < maxMuffins) {
       if (isOpenMarketDay) {
@@ -346,9 +352,10 @@ export const runDynamicScenario = (items, data, potentialPurchaseDays, maxMuffin
   o.maximumInvestedAtAnyTime = Math.max(...investedAmountByDay);
   o.shutOutDays = shutOutDays.length;
   o.muffins = muffins;
+  o.muffinsSoldCountTotal = muffinsSoldCountTotal;
   o.events = events;
 
-  console.log("MUFFINS SOLD TOTAL: " + muffinsSoldCountTotal)
+  console.log(`MUFFINS SOLD TOTAL YEAR ${days[0]}::: ${muffinsSoldCountTotal}`);
   return o;
 
 };

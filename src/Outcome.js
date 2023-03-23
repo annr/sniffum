@@ -48,7 +48,6 @@ class Outcome extends React.Component {
 
     return (
       <div>
-        <p>Edit config.js to change any variables</p>
         <h2>Basic (Coarse) Scenario</h2>
         <p>
           The first scenario I thought to test. I wanted to to see if this coarse, low-effort plan would yield

@@ -53,7 +53,7 @@ export const getIndicesOfMuffinsToBeSold = (data, day, muffins, saleThreshold, d
 
   // to test the difference between static saleThreshold and dynamicSaleThreshold (based on number of muffins)
   // change the variable below**
-  let saleIndexes = []
+  let saleIndexes = [];
 
   for (let i = 0; i < muffins.length; i++) {
     if (muffins[i].profit == null) {
@@ -74,16 +74,15 @@ export const getIndicesOfMuffinsAtThreshold = (data, day, muffins, saleThreshold
 
   // to test the difference between static saleThreshold and dynamicSaleThreshold (based on number of muffins)
   // change the variable below**
-  let saleIndexes = []
+  let saleIndexes = [];
 
-  for (let i = 0; i < muffins.length; i++) {
-    if (muffins[i].profit == null) {
-      const priceChangePercent = getPriceChangePercent(muffins[i].purchasePrice, getHighPrice(data, day));
-      if (priceChangePercent > saleThreshold) { // ** change the threshold to test
-        // yay! we can sell.
-          saleIndexes.push(i);
-          muffins[i].saleGain = priceChangePercent;
-      }
+  const unsoldMuffins = getUnsoldMuffins(muffins);
+  for (let i = 0; i < unsoldMuffins.length; i++) {
+    const priceChangePercent = getPriceChangePercent(unsoldMuffins[i].purchasePrice, getHighPrice(data, day));
+    if (priceChangePercent >= saleThreshold) {
+      // yay! we can sell.
+        saleIndexes.push(unsoldMuffins[i].id-1); // HACK: id MUST correspond to array index!!!
+        unsoldMuffins[i].saleGain = priceChangePercent;
     }
   }
   return saleIndexes;
@@ -117,7 +116,7 @@ export const updateGainOfMuffins = (data, day, muffins) => {
   for (var i in muffins) {
     if (!muffins[i].saleDate) {
       const gain = getPercentValueToday(getPrice(data, day), muffins[i]);
-      muffins[i].currentGain  = gain;
+      muffins[i].currentGain  = gain.toFixed(3);
     }
   }
   return muffins;

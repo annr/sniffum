@@ -39,13 +39,13 @@ export const getMarketTypeSwitch = (gains) => {
 
 export const getDynamicSaleThreshold = (muffinsLength) => {
   let dt = config.saleTiers.regular;
+  if (muffinsLength >= 14) {
+    dt = config.saleTiers.firesale;
+  }  
   if (muffinsLength > 10) {
     dt = config.saleTiers.discount;
   }
-  if (muffinsLength <= 2) {
-    dt = config.saleTiers.hold;
-  }
-  if (muffinsLength < 6) {
+  if (muffinsLength <= 3) {
     dt = config.saleTiers.premium;
   }
   return dt;

@@ -191,6 +191,12 @@ export const checkValidityOfDates = (data, startDate, endDate) => {
   }
 };
 
+export const isPotentialPurchaseDay = (potentialPurchaseDays, day) => {
+  // Compare to date string, not timestamp. Timestamp gets out of whack: ex. day == "Thu Mar 14 2019"
+  const test = (potentialPurchaseDays.find((buyDay) => (new Date(buyDay).toDateString()) === day));
+  return (!!test) ? true : false;
+};
+
 // these two functions may be combined and written more elegantly
 export const adjustStartToMarketDay = (data, startDate) => {
   if (startDate < getFirstDataDay(data)) {

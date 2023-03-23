@@ -1,6 +1,6 @@
 const config = {
-  startDate: Date.parse('1/03/2019'),
-  endDate: Date.parse('12/30/2019'),
+  startDate: Date.parse('1/01/2011'),
+  endDate: Date.parse('12/31/2011'),
   tradeFrequency: 7,
   spendinglimit: 80000.00,
   muffinCost: 5000.00,
@@ -8,10 +8,10 @@ const config = {
   growthMarketDefinition: 0.03,
   //  minSaleAge: 21,
   saleTiers: {
-    hold: 0.06,
-    premium: 0.04,
-    regular: 0.035,
-    discount: 0.018,
+    premium: 0.06,
+    regular: 0.04,
+    discount: 0.03,
+    firesale: 0.022,
   },
   tradeAtStartOfWeekFlag: false,
   table: {

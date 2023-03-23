@@ -20,6 +20,7 @@ class SummaryBox extends React.Component {
     remainingUnsoldMuffins,
     shutOutDays,
     maxReturnHypothetical,
+    muffinsSoldCountTotal,
   } = this.props;
 
   const returnsClassName = scenarioReturn > 0 ? "positive" : "negative";
@@ -29,9 +30,9 @@ class SummaryBox extends React.Component {
     <>
       <ul className='summary-list'>
       <li>
-          <span className="label">Scenario (short-term) gains: </span>
-          <span className={`profit ${returnsClassName}`}>{`${formatPercent(scenarioReturn)}`} </span>
-          <span className="dim">(profit/avg-investment) </span>
+          <span className="label">Run (short-term) gains: </span>
+          (<span className={`${returnsClassName}`}>{`${formatPercent(scenarioReturn)}`} of {`${Math.round(avgInvestmentPct)+"%"}`}</span>)
+          <span className="dim"> (profit/avg-investment) </span>
         </li>
         <li>
           <span className="label">Profit: </span>
@@ -39,7 +40,8 @@ class SummaryBox extends React.Component {
         </li>
         <li>
           <span className="label">Sales: </span>
-          {`${money.format(totalSales)}`}
+          {`${money.format(totalSales)}`} ({`${muffinsSoldCountTotal}`}) 
+          <span className="dim"> Avg. sale: {money.format(totalSales/muffinsSoldCountTotal)}</span>
         </li>
         <li>
           <span className="label">Unsold muffins gains or losses: </span>
